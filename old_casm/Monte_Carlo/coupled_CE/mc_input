@@ -1,0 +1,14 @@
+30000  ! n_pass
+10000  ! n_equil_pass
+4 4 4 ! simulation cell dimension in x, y, and z
+395   ! Tinit
+395   ! Tmin
+4000   ! Tmax
+-100   ! Tinc
+Mg -0.5   V4+ -0 ! mu init
+Mg -1      V4+ 0 ! mu min
+Mg 0.5     V4+ 0  ! mu max
+Mg 0.1   V4+ 0  ! mu inc
+  1  ! number of increments between structure output (0 indicates no output)
+  1  ! calculate average correlations yes(1) or no (0)
+  1  ! temp_chem = 0 if temperature runs 1 if chem runs
