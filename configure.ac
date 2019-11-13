@@ -52,13 +52,6 @@ AC_ARG_WITH([bash-completion-dir],
     [],
     [with_bash_completion_dir=no])
 
-if test "x$with_bash_completion_dir" = "xyes"; then
-    PKG_CHECK_MODULES([BASH_COMPLETION], [bash-completion >= 2.0],
-        [BASH_COMPLETION_DIR="`pkg-config --variable=completionsdir bash-completion`"],
-        [BASH_COMPLETION_DIR="$datadir/bash-completion/completions"])
-else
-    BASH_COMPLETION_DIR="$with_bash_completion_dir"
-fi
 
 AC_SUBST([BASH_COMPLETION_DIR])
 AM_CONDITIONAL([ENABLE_BASH_COMPLETION],[test "x$with_bash_completion_dir" != "xno"])
