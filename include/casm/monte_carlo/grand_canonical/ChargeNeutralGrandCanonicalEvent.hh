@@ -4,7 +4,7 @@
 
 namespace CASM{
 
-
+// Jerry: this is used as a storage for all different stuffs
 class ChargeNeutralGrandCanonicalEvent {
 	public:
 		//Construct the event
