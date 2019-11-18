@@ -100,7 +100,7 @@ namespace CASM {
     }
 
     /// \brief Propose a new event, calculate delta properties, and return reference to it
-    /// <- Jerry: This is different from GrandCanonical.cc, not finished
+    /// <- Jerry: This is different from GrandCanonical.cc, under construction......
     const ChargeNeutralGrandCanonical::EventType &propose(){
         // Randomly pick a site that's allowed more than one occupant
         Index random_variable_site = _mtrand().randInt(m_site_swaps.variable_sites().size() - 1);
