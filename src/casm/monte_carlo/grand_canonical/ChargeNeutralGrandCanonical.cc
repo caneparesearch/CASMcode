@@ -65,29 +65,30 @@ namespace CASM {
 	/// This function needs to do all the math for energy and correlation deltas and store
 	/// the results inside the containers hosted by event. 
     /// <- Jerry: This is different from GrandCanonical.cc, not finished
+    /// do this site by site and then calculate total dEpot and store in ChargeNeutralGrandCanonicalEvent
+    /// and use it to for check()
 	void ChargeNeutralGrandCanonical::_update_deltas(EventType &event, 
 						std::pair<Index,Index> &mutating_sites,
 						std::pair<int,int> &sublats,
 						std::pair<int,int> &curr_occs,
 						std::pair<int,int> &new_occs) const{
+        // Site Na/Va
         // ---- set OccMod --------------
-
-        event.occupational_change().set(mutating_site, sublat, new_occupant);
+        event.occupational_change().set(mutating_sites.first, sublats.first, new_occs.first);
 
         // ---- set dspecies --------------
 
         for(int i = 0; i < event.dN().size(); ++i) {
           event.set_dN(i, 0);
         }
-        Index curr_species = m_site_swaps.sublat_to_mol()[sublat][current_occupant];
-        Index new_species = m_site_swaps.sublat_to_mol()[sublat][new_occupant];
+        Index curr_species = m_site_swaps.sublat_to_mol()[sublats.first][curr_occs.first];
+        Index new_species = m_site_swaps.sublat_to_mol()[sublats.first][new_occs.first];
         event.set_dN(curr_species, -1);
         event.set_dN(new_species, 1);
 
-
         // ---- set dcorr --------------
 
-        _set_dCorr(event, mutating_site, sublat, current_occupant, new_occupant, m_use_deltas, m_all_correlations);
+        _set_dCorr(event, mutating_sites.first, sublats.first, current_occupants.first, new_occupants.first, m_use_delta, m_all_correlation);
 
         // ---- set dformation_energy --------------
 
@@ -95,46 +96,97 @@ namespace CASM {
 
 
         // ---- set dpotential_energy --------------
+        dEpot_NaVa = event.dEf() - m_condition.exchange_chem_pot(new_species, curr_species);
+        event.set_dEpot(dEpot_NaVa);
 
-        event.set_dEpot(event.dEf() - m_condition.exchange_chem_pot(new_species, curr_species));
+        // Site Si/P
+        // ---- set OccMod --------------
+
+        event.occupational_change().set(mutating_sites.second, sublats.second, new_occs.second);
+
+        // ---- set dspecies --------------
+
+        for(int i = 0; i < event.dN().size(); ++i) {
+          event.set_dN(i, 0);
+        }
+        Index curr_species = m_site_swaps.sublat_to_mol()[sublats.second][curr_occs.second];
+        Index new_species = m_site_swaps.sublat_to_mol()[sublat.second][new_occs.second];
+        event.set_dN(curr_species, -1);
+        event.set_dN(new_species, 1);
+
+        // ---- set dcorr --------------
+
+        _set_dCorr(event, mutating_sites.second, sublats.second, current_occupants.second, new_occupants.second, m_use_delta, m_all_correlation);
+       
+        // ---- set dformation_energy --------------
+
+        event.set_dEf(_eci() * event.dCorr().data());
+
+        // ---- set dpotential_energy --------------
+        dEpot_SiP = event.dEf() - m_condition.exchange_chem_pot(new_species, curr_species);
+        event.set_dEpot(dEpot_SiP);
+        
+        // Calculate dEpot after two swaps
+        event.set_dEpot_swapped_twice(dEpot_NaVa+dEpot_SiP)
+        
     }
 
     /// \brief Propose a new event, calculate delta properties, and return reference to it
     /// <- Jerry: This is different from GrandCanonical.cc, under construction......
     const ChargeNeutralGrandCanonical::EventType &propose(){
 
-        GrandCanonicalEvent event_1 = GrandCanonical::propose();
-
-        if (event_1.occupational_change().sublat < 10){
-            
-        // Randomly pick a site that's allowed more than one occupant
-        Index random_variable_site = _mtrand().randInt(m_site_swaps.variable_sites().size() - 1);
+        // Jerry: 2 mutations at the same time; pick one Na/Va and one Si/P with the same occupancy and flip them together
+        do{
+          // Randomly pick a site that's allowed more than one occupant
+          Index random_variable_site_NaVa = _mtrand().randInt(m_site_swaps.variable_sites().size() - 1);
+          Index random_variable_site_SiP = _mtrand().randInt(m_site_swaps.variable_sites().size() - 1);
 
         // Determine what that site's linear index is and what the sublattice index is
-        Index mutating_site = m_site_swaps.variable_sites()[random_variable_site];
-        Index sublat = m_site_swaps.sublat()[random_variable_site];
+          Index mutating_site_NaVa = m_site_swaps.variable_sites()[random_variable_site_NaVa];
+          Index mutating_site_SiP = m_site_swaps.variable_sites()[random_variable_site_SiP];
 
-        // Determine the current occupant of the mutating site
-        int current_occupant = configdof().occ(mutating_site);
+          Index sublat_NaVa = m_site_swaps.sublat()[random_variable_site_NaVa];
+          Index sublat_SiP = m_site_swaps.sublat()[random_variable_site_SiP];
+      
+          // Determine the current occupant of the mutating site
+          int current_occupant_NaVa = configdof().occ(mutating_site_NaVa);
+          int current_occupant_SiP = configdof().occ(mutating_site_SiP);
+        }
+        while (sublat_NaVa < 10 && sublat_SiP > 10 && current_occupant_NaVa == current_occupant_SiP);
 
         // Randomly pick a new occupant for the mutating site
-        const std::vector<int> &possible_mutation = m_site_swaps.possible_swap()[sublat][current_occupant];
-        int new_occupant = possible_mutation[_mtrand().randInt(possible_mutation.size() - 1)];
+        const std::vector<int> &possible_mutation_NaVa = m_site_swaps.possible_swap()[sublat_NaVa][current_occupant_NaVa];
+        int new_occupant_NaVa = possible_mutation_NaVa[_mtrand().randInt(possible_mutation_NaVa.size() - 1)];
+        const std::vector<int> &possible_mutation_SiP = m_site_swaps.possible_swap()[sublat_SiP][current_occupant_SiP];
+        int new_occupant_SiP = possible_mutation_SiP[_mtrand().randInt(possible_mutation_SiP.size() - 1)];
 
         if(debug()) {
           const auto &site_occ = primclex().get_prim().basis[sublat].site_occupant();
-          _log().custom("Propose event");
+          _log().custom("Propose charge neutral grand canonical event");
 
-          _log()  << "  Mutating site (linear index): " << mutating_site << "\n"
-                  << "  Mutating site (b, i, j, k): " << supercell().uccoord(mutating_site) << "\n"
-                  << "  Current occupant: " << current_occupant << " (" << site_occ[current_occupant].name << ")\n"
-                  << "  Proposed occupant: " << new_occupant << " (" << site_occ[new_occupant].name << ")\n\n"
+          _log()  << "  Mutating site Na/Va (linear index): " << mutating_site_NaVa << "\n"
+                  << "  Mutating site (b, i, j, k): " << supercell().uccoord(mutating_site_NaVa) << "\n"
+                  << "  Current occupant: " << current_occupant_NaVa << " (" << site_occ[current_occupant_NaVa].name << ")\n"
+                  << "  Proposed occupant: " << new_occupant_NaVa << " (" << site_occ[new_occupant_NaVa].name << ")\n\n"
+
+                  << "  Mutating site Si/P (linear index): " << mutating_site_SiP << "\n"
+                  << "  Mutating site (b, i, j, k): " << supercell().uccoord(mutating_site_SiP) << "\n"
+                  << "  Current occupant: " << current_occupant_SiP << " (" << site_occ[current_occupant_SiP].name << ")\n"
+                  << "  Proposed occupant: " << new_occupant_SiP << " (" << site_occ[new_occupant_SiP].name << ")\n\n"
+
                   << "  beta: " << m_condition.beta() << "\n"
                   << "  T: " << m_condition.temperature() << std::endl;
         }
 
+        // creating pairs
+        std::pair<Index,Index> mutating_sites (mutating_site_NaVa,mutating_site_SiP);
+        std::pair<Index,Index> sublats (sublat_NaVa,sublat_SiP);
+        std::pair<int,int> current_occupants (current_occupant_NaVa,current_occupant_NaVa);
+        std::pair<int,int> new_occupants (new_occupant_NaVa,new_occupant_SiP)
+
         // Update delta properties in m_event
-        _update_deltas(m_event, mutating_site, sublat, current_occupant, new_occupant);
+        // Pairs are passing into _update_deltas()
+        _update_deltas(m_event, mutating_sites, sublats, current_occupants, new_occupants);
 
         if(debug()) {
 
@@ -155,8 +207,6 @@ namespace CASM {
                  << "  d(Ef): " << m_event.dEf() << "\n"
                  << "  d(Epot): " << m_event.dEf() - exchange_chem_pot(new_species, curr_species) << "\n"
                  << std::endl;
-
-
         }
 
         return m_event;
@@ -165,7 +215,25 @@ namespace CASM {
     
 	/// \brief Based on a random number, decide if the change in energy from the proposed event is low enough to be accepted.
     bool ChargeNeutralGrandCanonical::check(const EventType &event){
+      if(event.dEpot_swapped_twice() < 0.0) {
 
+        if(debug()) {
+          _log().custom("Check event");
+          _log() << "Probability to accept: 1.0\n" << std::endl;
+        }
+        return true;
+      }
+
+      double rand = _mtrand().rand53();
+      double prob = exp(-event.dEpot_swapped_twice() * m_condition.beta()); // is this beta correct????
+
+      if(debug()) {
+        _log().custom("Check event");
+        _log() << "Probability to accept: " << prob << "\n"
+               << "Random number: " << rand << "\n" << std::endl;
+      }
+
+      return rand < prob;
     }
     
 	/// \brief Accept proposed event. Change configuration accordingly and update energies etc.
