@@ -10,7 +10,7 @@
 namespace CASM{
 
 /// \brief Data structure for storing information regarding a proposed charge neutral grand canonical Monte Carlo event
-/// Jerry: this is used as a data framework to store all informations related to charge neutral GCMC
+/// Zeyu: this is used as a data framework to store all informations related to charge neutral GCMC
 /// Proposing a ChargeNeutralGrandCanonicalEvent will propose 3 GrandCanonicalEvent:
 /// A event will be proposed: pick two sites, one Na/Va site and one Si/P site, and apply the same to_value() value in OccMod
 /// in this case the charge is always balanced
@@ -54,12 +54,10 @@ class ChargeNeutralGrandCanonicalEvent {
     	const Eigen::VectorXd &dCorr() const;
 
     	/// \brief  Access the occupational modification for this event
-    	OccMod &occupational_change(std::pair<Index,Index> &mutating_sites,
-						std::pair<int,int> &sublats,
-						std::pair<int,int> &curr_occs);
+    	std::pair<OccMod,OccMod> &occupational_change();
 
     	/// \brief const Access the occupational modification for this event
-    	const OccMod &occupational_change();
+    	const std::pair<OccMod,OccMod> &occupational_change();
 
   	private:
     	/// \brief Change in (extensive) correlations due to this event
@@ -74,11 +72,11 @@ class ChargeNeutralGrandCanonicalEvent {
     	///        The order is determined by primclex.get_param_comp().get_components()
     	Eigen::VectorXl m_dN;
 
-    	/// \brief The ConfigDoF modification performed by this event
-    	OccMod m_occ_mod;
+    	/// \brief The ConfigDoF modification performed by this event , Pairs
+    	std::pair <OccMod,OccMod> m_occ_mod;
 
 		/// dEpot for two swaps
-		double m_dEpot_swapped_twice;
+		double m_dEpot_swapped_twice
 
 };
 
@@ -89,15 +87,6 @@ class ChargeNeutralGrandCanonicalEvent {
   ///
 	ChargeNeutralGrandCanonicalEvent::ChargeNeutralGrandCanonicalEvent(){
 	}
-
-	  /// \brief Set the change in total (formation) energy associated with this event
-	  inline void ChargeNeutralGrandCanonicalEvent::set_dEf1(double dEf1) {
-	    m_dEf1 = dEf1;
-	  }
-	  /// \brief Set the change in total (formation) energy associated with this event
-	  inline void ChargeNeutralGrandCanonicalEvent::set_dEf2(double dEf2) {
-	    m_dEf2 = dEf2;
-	  }
 
 	  /// \brief Return change in total (formation) energy associated with this event
 	  inline double ChargeNeutralGrandCanonicalEvent::dEf() const {
@@ -124,19 +113,32 @@ class ChargeNeutralGrandCanonicalEvent {
 	    return m_dN(species_type_index);
 	  }
 
+	  /// \brief Set the change in total (formation) energy associated with this event
+	  inline void ChargeNeutralGrandCanonicalEvent::set_dEf(double dEf) {
+	    m_dEf = dEf;
+	  }
+
 	  /// \brief Set the change in potential energy: dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
-	  inline void GrandCanonicalEvent::set_dEpot(double dEpot) {
+	  inline void ChargeNeutralGrandCanonicalEvent::set_dEpot(double dEpot) {
 	    m_dEpot = dEpot;
 	  }
-	  inline void GrandCanonicalEvent::set_dEpot_swapped_twice(double dEpot_swapped_twice) {
-	    m_dEpot_swapped_twice = dEpot;
+	  inline void ChargeNeutralGrandCanonicalEvent::set_dEpot_swapped_twice(double dEpot_swapped_twice) {
+	    m_dEpot_swapped_twice = dEpot_swapped_twice;
 	  }
-	  void GrandCanonicalEvent::set_dEpot_swapped_twice(double dEpot_swapped_twice) {
+	  inline void ChargeNeutralGrandCanonicalEvent::dEpot_swapped_twice() {
 	    return m_dEpot_swapped_twice;
 	  }
 	  /// \brief Return change in potential energy: dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
-	  inline double GrandCanonicalEvent::dEpot() const {
+	  inline double ChargeNeutralGrandCanonicalEvent::dEpot() const {
 	    return m_dEpot;
+	
+	  inline std::pair<OccMod,OccMod> &ChargeNeutralGrandCanonicalEvent::occupational_change(){
+		  return m_occ_mod;
+	  }
+
+	  inline const std::pair<OccMod,OccMod> &ChargeNeutralGrandCanonicalEvent::occupational_change(){
+		  return m_occ_mod;
+	  }
 	  }
 
 	  }
