@@ -38,6 +38,9 @@ class ChargeNeutralGrandCanonical : public MonteCarlo{
     /// \brief Return current conditions
     const CondType &conditions() const;
     
+    ///Keeps track of what sites can change to what
+    const SiteExchanger m_site_swaps;
+
 	/// \brief Set conditions and clear previously collected data
     void set_conditions(const CondType &new_conditions);
 
@@ -63,6 +66,7 @@ class ChargeNeutralGrandCanonical : public MonteCarlo{
     
 	/// \brief Write results to files
     void write_results(Index cond_index) const;
+
 };
 
 
