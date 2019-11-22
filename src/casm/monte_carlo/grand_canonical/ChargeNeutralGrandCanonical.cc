@@ -1,4 +1,5 @@
 #include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonical.hh"
+#include "casm/clex/PrimClex.hh"
 
 namespace CASM {
     const Monte::ENSEMBLE ChargeNeutralGrandCanonical::ensemble = Monte::ENSEMBLE::GrandCanonical; //Zeyu : not sure if this is correct??
@@ -140,6 +141,7 @@ namespace CASM {
         
     }
   /// \brief Calculate delta correlations for an event
+
   void ChargeNeutralGrandCanonical::_set_dCorr(ChargeNeutralGrandCanonicalEvent &event,
                                   Index mutating_site,
                                   int sublat,

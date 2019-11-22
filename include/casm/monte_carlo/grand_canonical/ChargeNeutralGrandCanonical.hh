@@ -47,11 +47,19 @@ class ChargeNeutralGrandCanonical : public MonteCarlo{
 
 	/// This function needs to do all the math for energy and correlation deltas and store
 	/// the results inside the containers hosted by event.
-	void _update_deltas(EventType &event, 
+	  void _update_deltas(EventType &event, 
 						std::pair<Index,Index> &mutating_sites,
 						std::pair<int,int> &sublats,
 						std::pair<int,int> &curr_occs,
 						std::pair<int,int> &new_occs) const;
+    
+    void _set_dCorr(ChargeNeutralGrandCanonicalEvent &event,
+                                  Index mutating_site,
+                                  int sublat,
+                                  int current_occupant,
+                                  int new_occupant,
+                                  bool use_deltas,
+                                  bool all_correlations, int this_site) const;
 
     /// \brief Propose a new event, calculate delta properties, and return reference to it
     const EventType &propose();
