@@ -24,6 +24,7 @@ namespace CASM {
   ///      -write_results
   ///
   //
+class ChargeNeutralGrandCanonicalEvent();
 
 class ChargeNeutralGrandCanonical : public MonteCarlo{
 	public:
