@@ -98,7 +98,7 @@ namespace CASM {
 
 
         // ---- set dpotential_energy --------------
-        dEpot_1 = event.dEf().first - m_condition.exchange_chem_pot(new_species, curr_species);
+        double dEpot_1 = event.dEf().first - m_condition.exchange_chem_pot(new_species, curr_species);
         event.set_dEpot1(dEpot_1);
 
         // // Site 1 modification finished, update configuration ....
@@ -128,7 +128,7 @@ namespace CASM {
         event.set_dEf2(_eci() * event.dCorr().second.data());
 
         // ---- set dpotential_energy --------------
-        dEpot_2 = event.dEf().second - m_condition.exchange_chem_pot(new_species, curr_species);
+        double dEpot_2 = event.dEf().second - m_condition.exchange_chem_pot(new_species, curr_species);
         event.set_dEpot2(dEpot_2);
         
         // Calculate dEpot after two swaps
