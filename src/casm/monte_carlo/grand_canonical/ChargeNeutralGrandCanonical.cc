@@ -1,6 +1,8 @@
 #include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonical.hh"
 
 namespace CASM {
+    const Monte::ENSEMBLE ChargeNeutralGrandCanonical::ensemble = Monte::ENSEMBLE::ChargeNeutralGrandCanonical;
+
     // <- Zeyu: same as GrandCanonical.cc
     ChargeNeutralGrandCanonical::ChargeNeutralGrandCanonical(PrimClex &primclex, const SettingsType &settings, Log &_log):
     MonteCarlo(primclex, settings, log),
