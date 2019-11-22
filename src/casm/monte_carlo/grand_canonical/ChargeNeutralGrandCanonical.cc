@@ -395,7 +395,6 @@ namespace CASM {
     }
     
 	/// \brief Write results to files
-    /// <- Zeyu: same as GrandCanonical.cc
     void ChargeNeutralGrandCanonical::write_results(Index cond_index) const{
         CASM::write_results(settings(), *this, _log());
         write_conditions_json(settings(), *this, cond_index, _log());
