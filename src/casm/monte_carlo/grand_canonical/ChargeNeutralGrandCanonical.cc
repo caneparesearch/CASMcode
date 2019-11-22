@@ -78,26 +78,26 @@ namespace CASM {
 
         // ---- set dspecies --------------
 
-        for(int i = 0; i < event.dN().size(); ++i) {
-          event.set_dN(i, 0);
+        for(int i = 0; i < event.dN().first.size(); ++i) {
+          event.set_dN1(i, 0);
         }
         Index curr_species = m_site_swaps.sublat_to_mol()[sublats.first][curr_occs.first];
         Index new_species = m_site_swaps.sublat_to_mol()[sublats.first][new_occs.first];
-        event.set_dN(curr_species, -1);
-        event.set_dN(new_species, 1);
+        event.set_dN1(curr_species, -1);
+        event.set_dN1(new_species, 1);
 
         // ---- set dcorr --------------
 
-        _set_dCorr(event, mutating_sites.first, sublats.first, current_occupants.first, new_occupants.first, m_use_delta, m_all_correlation); // Zeyu: Shall we rewrite _set_dCorr?
+        _set_dCorr(event, mutating_sites.first, sublats.first, current_occupants.first, new_occupants.first, m_use_delta, m_all_correlation, 1); // Zeyu: Shall we rewrite _set_dCorr?
 
         // ---- set dformation_energy --------------
 
-        event.set_dEf(_eci() * event.dCorr().data());
+        event.set_dEf1(_eci() * event.dCorr().data());
 
 
         // ---- set dpotential_energy --------------
-        dEpot_1 = event.dEf() - m_condition.exchange_chem_pot(new_species, curr_species);
-        event.set_dEpot(dEpot_1);
+        dEpot_1 = event.dEf().first - m_condition.exchange_chem_pot(new_species, curr_species);
+        event.set_dEpot1(dEpot_1);
 
         // // Site 1 modification finished, update configuration ....
         _configdof().occ(event.occupational_change().first.site_index()) = event.occupational_change().first.to_value();
@@ -109,42 +109,42 @@ namespace CASM {
 
         // ---- set dspecies --------------
 
-        for(int i = 0; i < event.dN().size(); ++i) {
-          event.set_dN(i, 0);
+        for(int i = 0; i < event.dN().first.size(); ++i) {
+          event.set_dN2(i, 0);
         }
         Index curr_species = m_site_swaps.sublat_to_mol()[sublats.second][curr_occs.second];
         Index new_species = m_site_swaps.sublat_to_mol()[sublat.second][new_occs.second];
-        event.set_dN(curr_species, -1);
-        event.set_dN(new_species, 1);
+        event.set_dN2(curr_species, -1);
+        event.set_dN2(new_species, 1);
 
         // ---- set dcorr --------------
 
-        _set_dCorr(event, mutating_sites.second, sublats.second, current_occupants.second, new_occupants.second, m_use_delta, m_all_correlation);
+        _set_dCorr(event, mutating_sites.second, sublats.second, current_occupants.second, new_occupants.second, m_use_delta, m_all_correlation, 2);
        
         // ---- set dformation_energy --------------
 
-        event.set_dEf(_eci() * event.dCorr().data());
+        event.set_dEf2(_eci() * event.dCorr().second.data());
 
         // ---- set dpotential_energy --------------
-        dEpot_2 = event.dEf() - m_condition.exchange_chem_pot(new_species, curr_species);
-        event.set_dEpot(dEpot_2);
+        dEpot_2 = event.dEf().second - m_condition.exchange_chem_pot(new_species, curr_species);
+        event.set_dEpot2(dEpot_2);
         
         // Calculate dEpot after two swaps
         event.set_dEpot_swapped_twice(dEpot_1+dEpot_2)
 
-        // // Site 1 modification finished, update configuration ....
+        // Zeyu: after get dEpot_swapped_twice, change configuration back to origin....
         _configdof().occ(event.occupational_change().first.site_index()) = event.occupational_change().first.from_value();
 
         
     }
-/// \brief Calculate delta correlations for an event
+  /// \brief Calculate delta correlations for an event
   void ChargeNeutralGrandCanonical::_set_dCorr(ChargeNeutralGrandCanonicalEvent &event,
                                   Index mutating_site,
                                   int sublat,
                                   int current_occupant,
                                   int new_occupant,
                                   bool use_deltas,
-                                  bool all_correlations) const {
+                                  bool all_correlations, int this_site) const {
 
     // uses _clexulator(), nlist(), _configdof()
 
@@ -153,29 +153,51 @@ namespace CASM {
     _clexulator().set_nlist(nlist().sites(nlist().unitcell_index(mutating_site)).data());
 
     if(use_deltas) {
-
       // Calculate the change in correlations due to this event
       if(all_correlations) {
+        if (this_site == 1) {
         _clexulator().calc_delta_point_corr(sublat,
                                             current_occupant,
                                             new_occupant,
-                                            event.dCorr().data());
+                                            event.dCorr().first.data());
+                                            }
+        if (this_site == 2) {
+        _clexulator().calc_delta_point_corr(sublat,
+                                            current_occupant,
+                                            new_occupant,
+                                            event.dCorr().second.data());
+                                            }
       }
       else {
         auto begin = _eci().index().data();
         auto end = begin + _eci().index().size();
+        if (this_site == 1){
         _clexulator().calc_restricted_delta_point_corr(sublat,
                                                        current_occupant,
                                                        new_occupant,
-                                                       event.dCorr().data(),
+                                                       event.dCorr().first.data(),
                                                        begin,
                                                        end);
+        }
+        if (this_site == 2){
+        _clexulator().calc_restricted_delta_point_corr(sublat,
+                                                       current_occupant,
+                                                       new_occupant,
+                                                       event.dCorr().second.data(),
+                                                       begin,
+                                                       end);          
+        }
       }
     }
     else {
-
-      Eigen::VectorXd before { Eigen::VectorXd::Zero(event.dCorr().size()) };
-      Eigen::VectorXd after { Eigen::VectorXd::Zero(event.dCorr().size()) };
+      if (this_site == 1){
+      Eigen::VectorXd before { Eigen::VectorXd::Zero(event.dCorr().first.size()) };
+      Eigen::VectorXd after { Eigen::VectorXd::Zero(event.dCorr().first.size()) };
+      }
+      if (this_site == 2){
+      Eigen::VectorXd before { Eigen::VectorXd::Zero(event.dCorr().second.size()) };
+      Eigen::VectorXd after { Eigen::VectorXd::Zero(event.dCorr().second.size()) };        
+      }
 
       // Calculate the change in points correlations due to this event
       if(all_correlations) {
@@ -205,16 +227,27 @@ namespace CASM {
       }
 
       // Calculate the change in correlations due to this event
-      event.dCorr() = after - before;
+      if (this_site == 1){
+      event.dCorr().first = after - before;
+      }
+      if (this_site == 2){
+      event.dCorr().second = after - before;  
+      }
 
       // Unapply changes
       _configdof().occ(mutating_site) = current_occupant;
     }
 
     if(debug()) {
-      _print_correlations(event.dCorr(), "delta correlations", "dCorr", all_correlations);
+      if (this_site == 1){
+      _print_correlations(event.dCorr().first, "delta correlations", "dCorr", all_correlations);
+      }
+      if (this_site == 2){
+      _print_correlations(event.dCorr().second, "delta correlations", "dCorr", all_correlations);
+      }
     }
   }
+
     /// \brief Propose a new event, calculate delta properties, and return reference to it
     /// <- Zeyu: This is different from GrandCanonical.cc, under construction......
     const ChargeNeutralGrandCanonical::EventType &propose(){
@@ -336,11 +369,15 @@ namespace CASM {
         _configdof().occ(event.occupational_change().first.site_index()) = event.occupational_change().first.to_value();
         _configdof().occ(event.occupational_change().second.site_index()) = event.occupational_change().second.to_value();
 
-        // Next update all properties that changed from the event //work out
-        _formation_energy() += event.dEf() / supercell().volume();
-        _potential_energy() += event.dEpot() / supercell().volume();
-        _corr() += event.dCorr() / supercell().volume();
-        _comp_n() += event.dN().cast<double>() / supercell().volume();
+        // Next update all properties that changed from the event // Zeyu: update twice, the volume does not change throughout the simulation
+        _formation_energy() += event.dEf().first / supercell().volume();
+        _formation_energy() += event.dEf().second / supercell().volume();
+        _potential_energy() += event.dEpot().first / supercell().volume();
+        _potential_energy() += event.dEpot().second / supercell().volume();
+        _corr() += event.dCorr().first / supercell().volume();
+        _corr() += event.dCorr().second / supercell().volume();
+        _comp_n() += event.dN().first.cast<double>() / supercell().volume();
+        _comp_n() += event.dN().second.cast<double>() / supercell().volume();
 
         return;
     }
