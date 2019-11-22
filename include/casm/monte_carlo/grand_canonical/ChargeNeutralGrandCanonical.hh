@@ -25,7 +25,6 @@ namespace CASM {
   ///
   //
 
-
 class ChargeNeutralGrandCanonical : public MonteCarlo{
 	public:
     static const Monte::ENSEMBLE ensemble;
