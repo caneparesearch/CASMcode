@@ -116,6 +116,37 @@ class ChargeNeutralGrandCanonical : public MonteCarlo{
     Clexulator &_clexulator() const {
       return m_formation_energy_clex.clexulator();
     }
+
+    
+   /// Conditions (T, mu). Initially determined by m_settings, but can be changed halfway through the run
+    GrandCanonicalConditions m_condition;
+
+    /// Holds Clexulator and ECI references
+    Clex m_formation_energy_clex;
+
+    /// If true, calculate all correlations; if false, calculate correlations with non-zero eci
+    bool m_all_correlations;
+
+    /// Event to propose, check, accept/reject:
+    EventType m_event;
+
+    /// \brief If the supercell is large enough, calculate delta correlations directly
+    bool m_use_deltas;
+
+
+    // ---- Pointers to properties for faster access
+
+    /// \brief Formation energy, normalized per primitive cell
+    double *m_formation_energy;
+
+    /// \brief Potential energy, normalized per primitive cell
+    double *m_potential_energy;
+
+    /// \brief Correlations, normalized per primitive cell
+    Eigen::VectorXd *m_corr;
+
+    /// \brief Number of atoms of each type, normalized per primitive cell
+    Eigen::VectorXd *m_comp_n;
     
 };
 
