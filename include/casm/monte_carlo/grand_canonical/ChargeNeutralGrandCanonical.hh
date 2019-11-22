@@ -28,7 +28,7 @@ namespace CASM {
 
 class ChargeNeutralGrandCanonical : public MonteCarlo{
 	public:
-
+    static const Monte::ENSEMBLE ensemble;
     typedef ChargeNeutralGrandCanonicalEvent EventType;
     typedef GrandCanonicalConditions CondType;
     typedef GrandCanonicalSettings SettingsType;
@@ -68,6 +68,55 @@ class ChargeNeutralGrandCanonical : public MonteCarlo{
 	/// \brief Write results to files
     void write_results(Index cond_index) const;
 
+    /// \brief Formation energy, normalized per primitive cell
+    const double &formation_energy() const {
+      return *m_formation_energy;
+    }
+
+    /// \brief Potential energy, normalized per primitive cell
+    const double &potential_energy() const {
+      return *m_potential_energy;
+    }
+
+    /// \brief Correlations, normalized per primitive cell
+    const Eigen::VectorXd &corr() const {
+      return *m_corr;
+    }
+
+    /// \brief Number of atoms of each type, normalized per primitive cell
+    const Eigen::VectorXd &comp_n() const {
+      return *m_comp_n;
+    }
+
+    /// \brief Get potential energy
+    double potential_energy(const Configuration &config) const;
+    
+    private:
+
+    /// \brief Formation energy, normalized per primitive cell
+    double &_formation_energy() {
+      return *m_formation_energy;
+    }
+
+    /// \brief Potential energy, normalized per primitive cell
+    double &_potential_energy() {
+      return *m_potential_energy;
+    }
+
+    /// \brief Correlations, normalized per primitive cell
+    Eigen::VectorXd &_corr() {
+      return *m_corr;
+    }
+
+    /// \brief Number of atoms of each type, normalized per primitive cell
+    Eigen::VectorXd &_comp_n() {
+      return *m_comp_n;
+    }
+
+    Clexulator &_clexulator() const {
+      return m_formation_energy_clex.clexulator();
+    }
+    
 };
 
 
