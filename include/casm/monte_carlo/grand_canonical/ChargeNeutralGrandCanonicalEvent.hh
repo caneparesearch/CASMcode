@@ -22,11 +22,11 @@ class ChargeNeutralGrandCanonicalEvent {
 		};
 		
     	/// \brief Set the change in (extensive) formation energy associated with this event
-    	void set_dEf(double dE1,double dE2);
+    	void set_dEf1(double dEf);
+    	void set_dEf2(double dEf);
 
     	/// \brief Return change in (extensive) formation energy associated with this event
     	std::pair<double,double> dEf() const;
-
 
     	/// \brief Access change in number of species per supercell. Order as in CompositionConverter::components().
     	std::pair<Eigen::VectorXl,Eigen::VectorXl> &dN();
@@ -35,29 +35,36 @@ class ChargeNeutralGrandCanonicalEvent {
     	const std::pair<Eigen::VectorXl,Eigen::VectorXl> &dN() const;
 
     	/// \brief Set the change in number of species in supercell. Order as in CompositionConverter::components().
-    	void set_dN(size_type species_type_index, long int dn);
+    	void set_dN1(size_type species_type_index, long int dn);
+		void set_dN2(size_type species_type_index, long int dn);
 
     	/// \brief Return change in number of species in supercell. Order as in CompositionConverter::components().
-    	std::pair<long int,long int> dN(size_type species_type_index) const;
+    	long int dN1(size_type species_type_index) const;
+		long int dN2(size_type species_type_index) const;
 
 
     	/// \brief Set change in (extensive) potential energy, dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
-    	void set_dEpot(double dpot_nrg);
+    	void set_dEpot1(double dpot_nrg);
+		void set_dEpot2(double dpot_nrg);
 
     	/// \brief Return change in (extensive) potential energy, dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
     	std::pair<double,double> dEpot() const;
+
+    	/// \brief  Access the occupational modification for this event
+    	std::pair<OccMod,OccMod> &occupational_change();
+
+    	/// \brief const Access the occupational modification for this event
+    	const std::pair<OccMod,OccMod> &occupational_change() const;
 
     	/// \brief Access the changes in (extensive) correlations associated with this event
     	std::pair<Eigen::VectorXd,Eigen::VectorXd> &dCorr();
 
     	/// \brief const Access the changes in (extensive) correlations associated with this event
     	const std::pair<Eigen::VectorXd,Eigen::VectorXd> &dCorr() const;
+	
+		void set_dEpot_swapped_twice(double dEpot_swapped_twice);
+		double dEpot_swapped_twice();
 
-    	/// \brief  Access the occupational modification for this event
-    	std::pair<OccMod,OccMod> &occupational_change();
-
-    	/// \brief const Access the occupational modification for this event
-    	const std::pair<OccMod,OccMod> &occupational_change();
 
   	private:
     	/// \brief Change in (extensive) correlations due to this event
@@ -78,6 +85,7 @@ class ChargeNeutralGrandCanonicalEvent {
 
 		/// dEpot for two swaps
 		double m_dEpot_swapped_twice
+		
 
 };
 
@@ -86,35 +94,8 @@ class ChargeNeutralGrandCanonicalEvent {
   /// \param Nspecies The number of different molecular species in this calculation (use CompositionConverter::components().size())
   /// \param Ncorr The total number of correlations that could be calculated (use Clexulator::corr_size)
   ///
-	ChargeNeutralGrandCanonicalEvent::ChargeNeutralGrandCanonicalEvent(){
-	}
-
-
-	  /// \brief Access change in number of all species (extensive). Order as in CompositionConverter::components().
-	  inline std::pair<Eigen::VectorXl,Eigen::VectorXl> &ChargeNeutralGrandCanonicalEvent::dN() {
-	    return m_dN;
+	  ChargeNeutralGrandCanonicalEvent::ChargeNeutralGrandCanonicalEvent(){
 	  }
-	  /// \brief const Access change in number of all species (extensive). Order as in CompositionConverter::components().
-	  inline const std::pair<Eigen::VectorXl,Eigen::VectorXl> &ChargeNeutralGrandCanonicalEvent::dN() const {
-	    return m_dN;
-	  }
-
-	  /// \brief Return change in number of species (extensive) described by size_type. Order as in CompositionConverter::components().
-	  inline std::pair<long int,long int> ChargeNeutralGrandCanonicalEvent::dN(std::pair<size_type,size_type> species_type_indexes) {
-	    return m_dN(species_type_indexes);
-	  }
-	  /// \brief const Access change in number of species (extensive) described by size_type. Order as in CompositionConverter::components().
-	  inline std::pair<long int,long int> ChargeNeutralGrandCanonicalEvent::dN(std::pair<size_type,size_type> species_type_indexes) const {
-	    return m_dN(species_type_indexes);
-	  }
-	  /// \brief Set the change in number of species (extensive) described by size_type. Order as in CompositionConverter::components().
-	  inline void ChargeNeutralGrandCanonicalEvent::set_dN1(size_type species_type_index, long int dNi) {
-	    m_dN.first(species_type_index) = dNi;
-	  }
-	  inline void ChargeNeutralGrandCanonicalEvent::set_dN2(size_type species_type_index, long int dNi) {
-	    m_dN.second(species_type_index) = dNi;
-	  }
-
 
 	  /// \brief Return change in total (formation) energy associated with this event
 	  inline std::pair<double,double> ChargeNeutralGrandCanonicalEvent::dEf() const {
@@ -128,9 +109,31 @@ class ChargeNeutralGrandCanonicalEvent {
 	    m_dEf.second = dEf;
 	  }
 
-	  /// \brief Return change in potential energy: dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
-	  inline std::pair<double,double> ChargeNeutralGrandCanonicalEvent::dEpot() const {
-	    return m_dEpot;
+	  /// \brief Access change in number of all species (extensive). Order as in CompositionConverter::components().
+	  inline std::pair<Eigen::VectorXl,Eigen::VectorXl> &ChargeNeutralGrandCanonicalEvent::dN() {
+	    return m_dN;
+	  }
+	  /// \brief const Access change in number of all species (extensive). Order as in CompositionConverter::components().
+	  inline const std::pair<Eigen::VectorXl,Eigen::VectorXl> &ChargeNeutralGrandCanonicalEvent::dN() const {
+	    return m_dN;
+	  }
+
+	  /// \brief const Access change in number of species (extensive) described by size_type. Order as in CompositionConverter::components().
+	  inline long int ChargeNeutralGrandCanonicalEvent::dN1(size_type species_type_index) const {
+	    return m_dN.first(species_type_index);
+	  }
+	  inline long int ChargeNeutralGrandCanonicalEvent::dN2(size_type species_type_index) const {
+	    return m_dN.second(species_type_index);
+	  }
+
+	  /// \brief Set the change in number of species (extensive) described by size_type. Order as in CompositionConverter::components().
+	  inline void ChargeNeutralGrandCanonicalEvent::set_dN1(size_type species_type_index, long int dNi) {
+	    m_dN.first(species_type_index) = dNi;
+	  }
+	  inline void ChargeNeutralGrandCanonicalEvent::set_dN2(size_type species_type_index, long int dNi) {
+	    m_dN.second(species_type_index) = dNi;
+	  }
+
 	  /// \brief Set the change in potential energy: dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
 	  inline void ChargeNeutralGrandCanonicalEvent::set_dEpot1(double dEpot) {
 	    m_dEpot.first = dEpot;
@@ -139,19 +142,18 @@ class ChargeNeutralGrandCanonicalEvent {
 	    m_dEpot.second = dEpot;
 	  }
 
-	  inline void ChargeNeutralGrandCanonicalEvent::set_dEpot_swapped_twice(double dEpot_swapped_twice) {
-	    m_dEpot_swapped_twice = dEpot_swapped_twice;
+	  /// \brief Return change in potential energy: dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
+	  inline std::pair<double,double> ChargeNeutralGrandCanonicalEvent::dEpot() const {
+	    return m_dEpot;
 	  }
 
-	  inline void ChargeNeutralGrandCanonicalEvent::dEpot_swapped_twice() {
-	    return m_dEpot_swapped_twice;
-	  }
-
+	  /// \brief Access the occupational modification for this event
 	  inline std::pair<OccMod,OccMod> &ChargeNeutralGrandCanonicalEvent::occupational_change(){
 		  return m_occ_mod;
 	  }
 
-	  inline const std::pair<OccMod,OccMod> &ChargeNeutralGrandCanonicalEvent::occupational_change(){
+	  /// \brief const Access the occupational modification for this event
+	  inline const std::pair<OccMod,OccMod> &ChargeNeutralGrandCanonicalEvent::occupational_change() const{
 		  return m_occ_mod;
 	  }
 	
@@ -163,9 +165,15 @@ class ChargeNeutralGrandCanonicalEvent {
       inline const std::pair<Eigen::VectorXd,Eigen::VectorXd> &ChargeNeutralGrandCanonicalEvent::dCorr() const{
 		  return m_dCorr;
 	  }
+
+	  inline void ChargeNeutralGrandCanonicalEvent::set_dEpot_swapped_twice(double dEpot_swapped_twice) {
+	    m_dEpot_swapped_twice = dEpot_swapped_twice;
 	  }
 
-	  }
+	  inline double ChargeNeutralGrandCanonicalEvent::dEpot_swapped_twice() {
+	    return m_dEpot_swapped_twice;
+	  }	
+
 }
 
 
