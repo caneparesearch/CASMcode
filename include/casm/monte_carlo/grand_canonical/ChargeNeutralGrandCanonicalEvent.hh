@@ -4,8 +4,6 @@
 #include "casm/external/Eigen/Dense"
 #include "casm/CASM_global_definitions.hh"
 #include "casm/monte_carlo/DoFMod.hh"
-#include "casm/monte_carlo/grand_canonical/GrandCanonicalEvent.hh"
-#include "casm/monte_carlo/grand_canonical/GrandCanonical.hh"
 
 namespace CASM{
 
