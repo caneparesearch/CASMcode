@@ -1,5 +1,5 @@
-#ifndef CASM_ChargeNeutralGrandCanonical_HH
-#define CASM_ChargeNeutralGrandCanonical_HH
+#ifndef CASM_ChargeNeutralGrandCanonicalEvent_HH
+#define CASM_ChargeNeutralGrandCanonicalEvent_HH
 #include <vector>
 #include "casm/external/Eigen/Dense"
 #include "casm/CASM_global_definitions.hh"
