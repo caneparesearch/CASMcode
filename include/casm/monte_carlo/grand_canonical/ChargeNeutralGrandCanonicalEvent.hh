@@ -15,6 +15,7 @@ namespace CASM{
 
 class ChargeNeutralGrandCanonicalEvent {
 	public:
+		typedef Index size_type;
 		//Construct the event
 		ChargeNeutralGrandCanonicalEvent(){
 		};
@@ -76,13 +77,13 @@ class ChargeNeutralGrandCanonicalEvent {
 
     	/// \brief Change in number of each species in supercell due to this event.
     	///        The order is determined by primclex.get_param_comp().get_components()
-    	std::pair<Eigen::VectorX1,Eigen::VectorX1> m_dN;
+    	std::pair<Eigen::VectorXl,Eigen::VectorXl> m_dN;
 
     	/// \brief The ConfigDoF modification performed by this event , Pairs
     	std::pair <OccMod,OccMod> m_occ_mod;
 
 		/// dEpot for two swaps
-		double m_dEpot_swapped_twice
+		double m_dEpot_swapped_twice;
 		
 
 };
