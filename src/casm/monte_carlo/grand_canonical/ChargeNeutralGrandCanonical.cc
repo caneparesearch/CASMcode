@@ -1,4 +1,5 @@
 #include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonical.hh"
+#include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonicalEvent.hh"
 #include "casm/clex/PrimClex.hh"
 
 namespace CASM {
@@ -328,7 +329,7 @@ namespace CASM {
                  << "    param_chem_pot.transpose() * dx_dn * dN: " << param_chem_pot.transpose()*Mpinv *m_event.dN().first.cast<double>() << "\n"
                  << "Swap step 1: d(Nunit * param_chem_pot * x): " << exchange_chem_pot(new_species_1, curr_species_1) << "\n"
 
-                 
+
                  << "Swap step 2: d(Nunit * param_chem_pot * x): " << exchange_chem_pot(new_species_2, curr_species_2) << "\n"
 
                  << "  d(Ef): " << m_event.dEf().second << "\n"
