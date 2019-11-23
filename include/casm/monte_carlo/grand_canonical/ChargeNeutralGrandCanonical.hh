@@ -24,8 +24,6 @@ namespace CASM {
   ///      -write_results
   ///
   //
-class ChargeNeutralGrandCanonicalEvent(){};
-
 class ChargeNeutralGrandCanonical : public MonteCarlo{
 	public:
     static const Monte::ENSEMBLE ensemble;
@@ -35,31 +33,27 @@ class ChargeNeutralGrandCanonical : public MonteCarlo{
 
 	ChargeNeutralGrandCanonical(PrimClex &primclex, const SettingsType &settings, Log &_log);
 
+    /// \brief Return number of steps per pass. Equals number of sites with variable occupation.
+    Index steps_per_pass() const;
 
     /// \brief Return current conditions
     const CondType &conditions() const;
 
-    ///Keeps track of what sites can change to what
-    const SiteExchanger m_site_swaps;
-
-	/// \brief Set conditions and clear previously collected data
+    /// \brief Set conditions and clear previously collected data
     void set_conditions(const CondType &new_conditions);
 
-	/// This function needs to do all the math for energy and correlation deltas and store
-	/// the results inside the containers hosted by event.
-	  void _update_deltas(EventType &event, 
-						std::pair<Index,Index> &mutating_sites,
-						std::pair<int,int> &sublats,
-						std::pair<int,int> &curr_occs,
-						std::pair<int,int> &new_occs) const;
-    
-    void _set_dCorr(ChargeNeutralGrandCanonicalEvent &event,
-                                  Index mutating_site,
-                                  int sublat,
-                                  int current_occupant,
-                                  int new_occupant,
-                                  bool use_deltas,
-                                  bool all_correlations, int this_site) const;
+    /// \brief Set configdof and clear previously collected data
+    void set_configdof(const ConfigDoF &configdof, const std::string &msg = "");
+
+      /// \brief Set configdof and conditions and clear previously collected data
+    std::pair<ConfigDoF, std::string> set_state(
+      const CondType &new_conditions,
+      const SettingsType &settings);
+
+    /// \brief Set configdof and conditions and clear previously collected data
+    void set_state(const CondType &new_conditions,
+                   const ConfigDoF &configdof,
+                   const std::string &msg = "");
 
     /// \brief Propose a new event, calculate delta properties, and return reference to it
     const EventType &propose();
@@ -73,8 +67,17 @@ class ChargeNeutralGrandCanonical : public MonteCarlo{
     /// \brief Nothing needs to be done to reject a GrandCanonicalEvent
     void reject(const EventType &event);
     
-	/// \brief Write results to files
+    void check_corr() {
+      std::cout << "corr:" << std::endl;
+      std::cout << correlations_vec(_configdof(), supercell(), _clexulator()) << std::endl;
+      std::cout << "OK corr" << std::endl;
+    }
+
+	  /// \brief Write results to files
     void write_results(Index cond_index) const;
+
+    /// \brief Calculate the single spin flip low temperature expansion of the grand canonical potential
+    double lte_grand_canonical_free_energy() const;
 
     /// \brief Formation energy, normalized per primitive cell
     const double &formation_energy() const {
@@ -125,9 +128,55 @@ class ChargeNeutralGrandCanonical : public MonteCarlo{
       return m_formation_energy_clex.clexulator();
     }
 
+    const ECIContainer &_eci() const {
+      return m_formation_energy_clex.eci();
+    }
+
+    /// \brief Calculate delta correlations for an event
+    void _set_dCorr(EventType &event,
+                                  Index mutating_site,
+                                  int sublat,
+                                  int current_occupant,
+                                  int new_occupant,
+                                  bool use_deltas,
+                                  bool all_correlations, int this_site) const;
+
+    /// \brief Print correlations to _log()
+    void _print_correlations(const Eigen::VectorXd &corr,
+                             std::string title,
+                             std::string colheader,
+                             bool all_correlations) const;
+
+	/// This function needs to do all the math for energy and correlation deltas and store
+	/// the results inside the containers hosted by event.
+	  void _update_deltas(EventType &event, 
+						std::pair<Index,Index> &mutating_sites,
+						std::pair<int,int> &sublats,
+						std::pair<int,int> &curr_occs,
+						std::pair<int,int> &new_occs) const;
     
+      /// \brief Calculate properties given current conditions
+    void _update_properties();
+
+    /// \brief Generate supercell filling ConfigDoF from default configuration
+    ConfigDoF _default_motif() const;
+
+    /// \brief Generate minimum potential energy ConfigDoF
+    std::pair<ConfigDoF, std::string> _auto_motif(const CondType &cond) const;
+
+    /// \brief Generate minimum potential energy ConfigDoF for this supercell
+    std::pair<ConfigDoF, std::string> _restricted_auto_motif(const CondType &cond) const;
+
+    /// \brief Generate supercell filling ConfigDoF from configuration
+    ConfigDoF _configname_motif(const std::string &configname) const;
+
+
+    ///Keeps track of what sites can change to what
+    const SiteExchanger m_site_swaps;  
+
+                                      
    /// Conditions (T, mu). Initially determined by m_settings, but can be changed halfway through the run
-    GrandCanonicalConditions m_condition;
+    CondType m_condition;
 
     /// Holds Clexulator and ECI references
     Clex m_formation_energy_clex;
