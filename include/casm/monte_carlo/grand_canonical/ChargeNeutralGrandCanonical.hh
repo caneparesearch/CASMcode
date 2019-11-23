@@ -1,12 +1,16 @@
 #ifndef CASM_ChargeNeutralGrandCanonical_HH
 #define CASM_ChargeNeutralGrandCanonical_HH
 
+#include "casm/clex/Clex.hh"
+#include "casm/monte_carlo/MonteDefinitions.hh"
 #include "casm/monte_carlo/MonteCarlo.hh"
+#include "casm/monte_carlo/MonteCarloEnum.hh"
+#include "casm/monte_carlo/SiteExchanger.hh"
+#include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonicalEvent.hh"
 #include "casm/monte_carlo/grand_canonical/GrandCanonicalConditions.hh"
 #include "casm/monte_carlo/grand_canonical/GrandCanonicalSettings.hh"
-#include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonicalEvent.hh"
-#include "casm/clex/Clex.hh"
-#include "casm/monte_carlo/SiteExchanger.hh"
+
+
 namespace CASM {
   ///
   /// Derives from base MonteCarlo class, to be used for simulations at constant

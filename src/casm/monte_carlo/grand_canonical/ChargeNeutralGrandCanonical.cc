@@ -1,5 +1,4 @@
 #include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonical.hh"
-#include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonicalEvent.hh"
 #include "casm/clex/PrimClex.hh"
 
 namespace CASM {
