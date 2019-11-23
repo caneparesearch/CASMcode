@@ -30,6 +30,7 @@ namespace CASM {
   //
 class ChargeNeutralGrandCanonical : public MonteCarlo{
 	public:
+  
     static const Monte::ENSEMBLE ensemble;
     typedef ChargeNeutralGrandCanonicalEvent EventType;
     typedef GrandCanonicalConditions CondType;
