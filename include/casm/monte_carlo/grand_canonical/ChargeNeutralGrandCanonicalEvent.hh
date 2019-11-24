@@ -105,11 +105,11 @@ class ChargeNeutralGrandCanonicalEvent {
   inline ChargeNeutralGrandCanonicalEvent::ChargeNeutralGrandCanonicalEvent(size_type Nspecies, size_type Ncorr){
 		if (!is_swapped()){
 			m_dCorr.first = Eigen::VectorXd(Ncorr);
-			m_dCorr.second = Eigen::VectorXd(Nspecies);
+			m_dN.first = Eigen::VectorXd(Nspecies);
 		}
 		if (is_swapped()){
-			m_dCorr.first = Eigen::VectorXd(Ncorr);
-			m_dCorr.second = Eigen::VectorXd(Nspecies);
+			m_dCorr.second = Eigen::VectorXd(Ncorr);
+			m_dN.second = Eigen::VectorXd(Nspecies);
 		}
 	 }
 
