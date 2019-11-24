@@ -4,6 +4,7 @@
 #include "casm/casm_io/DataFormatter.hh"
 #include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonical.hh"
 #include "casm/monte_carlo/MonteIO_impl.hh"
+#include "casm/monte_carlo/grand_canonical/GrandCanonicalConditions.hh"
 
 namespace CASM {
 
