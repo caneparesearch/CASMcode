@@ -55,7 +55,7 @@ namespace CASM {
 
     /// \brief Return current conditions 
     /// <- Zeyu: same as GrandCanonical.cc
-    const ChargeNeutralGrandCanonical::CondType &conditions() const{
+    const ChargeNeutralGrandCanonical::CondType &ChargeNeutralGrandCanonical::conditions() const{
         return m_condition;
     }
   
@@ -452,6 +452,7 @@ namespace CASM {
     return formation_energy - comp_x.dot(m_condition.param_chem_pot());
   }
 
+  /// \brief Calculate delta correlations for an event
   void ChargeNeutralGrandCanonical::_set_dCorr(ChargeNeutralGrandCanonicalEvent &event,
                                   Index mutating_site,
                                   int sublat,
@@ -507,7 +508,7 @@ namespace CASM {
       Eigen::VectorXd before;
       Eigen::VectorXd after;
       if (!event.is_swapped()){
-      before = Eigen::VectorXd::Zero(event.dCorr().first.size()));
+      before = Eigen::VectorXd::Zero(event.dCorr().first.size());
       after = Eigen::VectorXd::Zero(event.dCorr().first.size());
       }
       if (event.is_swapped()){
@@ -683,7 +684,6 @@ namespace CASM {
 
         
     }
-  /// \brief Calculate delta correlations for an event
 
   /// \brief Calculate properties given current conditions
   void ChargeNeutralGrandCanonical::_update_properties() {
