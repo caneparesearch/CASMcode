@@ -466,7 +466,9 @@ namespace CASM {
     // Point the Clexulator to the right neighborhood and right ConfigDoF
     _clexulator().set_config_occ(_configdof().occupation().begin());
     _clexulator().set_nlist(nlist().sites(nlist().unitcell_index(mutating_site)).data());
-
+    Eigen::VectorXd before;
+    Eigen::VectorXd after;
+    
     if(use_deltas) {
       // Calculate the change in correlations due to this event
       if(all_correlations) {
