@@ -431,7 +431,7 @@ namespace CASM {
   // }
 
 	/// \brief Write results to files
-    void ChargeNeutralGrandCanonical::write_results(Index cond_index) const{
+    void GrandCanonical::write_results(Index cond_index) const{
         CASM::write_results(settings(), *this, _log());
         write_conditions_json(settings(), *this, cond_index, _log());
         write_observations(settings(), *this, cond_index, _log());
