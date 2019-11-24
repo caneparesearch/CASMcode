@@ -19,10 +19,16 @@ class ChargeNeutralGrandCanonicalEvent {
 		//Construct the event
 		ChargeNeutralGrandCanonicalEvent(){
 		};
-		
+
+    	/// \brief Constructor
+    	///
+    	/// \param Nspecies The number of different molecular species in this calculation (use CompositionConverter::components().size())
+    	/// \param Ncorr The total number of correlations that could be calculated (use Clexulator::corr_size)
+    	///
+    	ChargeNeutralGrandCanonicalEvent(size_type Nspecies, size_type Ncorr);
+
     	/// \brief Set the change in (extensive) formation energy associated with this event
-    	void set_dEf1(double dEf);
-    	void set_dEf2(double dEf);
+    	void set_dEf(double dEf);
 
     	/// \brief Return change in (extensive) formation energy associated with this event
     	std::pair<double,double> dEf() const;
@@ -34,17 +40,14 @@ class ChargeNeutralGrandCanonicalEvent {
     	const std::pair<Eigen::VectorXl,Eigen::VectorXl> &dN() const;
 
     	/// \brief Set the change in number of species in supercell. Order as in CompositionConverter::components().
-    	void set_dN1(size_type species_type_index, long int dn);
-		void set_dN2(size_type species_type_index, long int dn);
+    	void set_dN(size_type species_type_index, long int dn);
 
     	/// \brief Return change in number of species in supercell. Order as in CompositionConverter::components().
-    	long int dN1(size_type species_type_index) const;
-		long int dN2(size_type species_type_index) const;
+    	long int dN(size_type species_type_index) const;
 
 
     	/// \brief Set change in (extensive) potential energy, dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
-    	void set_dEpot1(double dpot_nrg);
-		void set_dEpot2(double dpot_nrg);
+    	void set_dEpot(double dpot_nrg);
 
     	/// \brief Return change in (extensive) potential energy, dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
     	std::pair<double,double> dEpot() const;
@@ -84,6 +87,7 @@ class ChargeNeutralGrandCanonicalEvent {
 
 		/// dEpot for two swaps
 		double m_dEpot_swapped_twice;
+		bool is_swapped;
 		
 
 };
@@ -93,8 +97,16 @@ class ChargeNeutralGrandCanonicalEvent {
   /// \param Nspecies The number of different molecular species in this calculation (use CompositionConverter::components().size())
   /// \param Ncorr The total number of correlations that could be calculated (use Clexulator::corr_size)
   ///
-	  ChargeNeutralGrandCanonicalEvent::ChargeNeutralGrandCanonicalEvent(){
-	  }
+  inline ChargeNeutralGrandCanonicalEvent::ChargeNeutralGrandCanonicalEvent(size_type Nspecies, size_type Ncorr){
+		if (!is_swapped){
+			m_dCorr.first = Eigen::VectorXd(Ncorr);
+			m_dCorr.second = Eigen::VectorXd(Nspecies);
+		}
+		if (is_swapped){
+			m_dCorr.first = Eigen::VectorXd(Ncorr);
+			m_dCorr.second = Eigen::VectorXd(Nspecies);
+		}
+	 }
 
 	  /// \brief Return change in total (formation) energy associated with this event
 	  inline std::pair<double,double> ChargeNeutralGrandCanonicalEvent::dEf() const {
