@@ -1,4 +1,5 @@
 #include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonical.hh"
+#include "casm/monte_carlo/grand_canonical/GrandCanonicalEvent.hh"
 #include "casm/clex/PrimClex.hh"
 
 namespace CASM {
@@ -613,12 +614,12 @@ namespace CASM {
         // ---- set dspecies --------------
 
         for(int i = 0; i < event.dN().first.size(); ++i) {
-          event.set_dN1(i, 0);
+          event.set_dN(i, 0);
         }
         Index curr_species = m_site_swaps.sublat_to_mol()[sublats.first][curr_occs.first];
         Index new_species = m_site_swaps.sublat_to_mol()[sublats.first][new_occs.first];
-        event.set_dN1(curr_species, -1);
-        event.set_dN1(new_species, 1);
+        event.set_dN(curr_species, -1);
+        event.set_dN(new_species, 1);
 
         // ---- set dcorr --------------
 

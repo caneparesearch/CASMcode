@@ -66,10 +66,11 @@ class ChargeNeutralGrandCanonicalEvent {
 	
 		void set_is_swapped(bool is_swapped);
 		bool is_swapped();
+		const bool is_swapped() const;
 		
 		void set_dEpot_swapped_twice(double dEpot_swapped_twice);
-		
 		double dEpot_swapped_twice();
+		const double dEpot_swapped_twice() const;
 
 
   	private:
@@ -191,11 +192,22 @@ class ChargeNeutralGrandCanonicalEvent {
 	  inline void ChargeNeutralGrandCanonicalEvent::set_is_swapped(bool is_swapped){
 		  m_is_swapped = is_swapped;
 	  }
+	  inline bool ChargeNeutralGrandCanonicalEvent::is_swapped() {
+	    return m_is_swapped;
+	  }	
+	  inline const bool ChargeNeutralGrandCanonicalEvent::is_swapped() const{
+	    return m_is_swapped;
+	  }	
+
+
 	  inline void ChargeNeutralGrandCanonicalEvent::set_dEpot_swapped_twice(double dEpot_swapped_twice) {
 	    m_dEpot_swapped_twice = dEpot_swapped_twice;
 	  }
 
 	  inline double ChargeNeutralGrandCanonicalEvent::dEpot_swapped_twice() {
+	    return m_dEpot_swapped_twice;
+	  }	
+	  inline const double ChargeNeutralGrandCanonicalEvent::dEpot_swapped_twice() const{
 	    return m_dEpot_swapped_twice;
 	  }	
 
