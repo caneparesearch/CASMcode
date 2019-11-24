@@ -7,7 +7,6 @@
 #include "casm/monte_carlo/MonteCarloEnum.hh"
 #include "casm/monte_carlo/SiteExchanger.hh"
 #include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonicalEvent.hh"
-#include "casm/monte_carlo/grand_canonical/GrandCanonical.hh"
 #include "casm/monte_carlo/grand_canonical/GrandCanonicalEvent.hh"
 #include "casm/monte_carlo/grand_canonical/GrandCanonicalConditions.hh"
 #include "casm/monte_carlo/grand_canonical/GrandCanonicalSettings.hh"
