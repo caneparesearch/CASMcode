@@ -212,7 +212,7 @@ namespace CASM {
         std::pair<Index,Index> mutating_sites (mutating_site_1,mutating_site_2);
         std::pair<Index,Index> sublats (sublat_1,sublat_2);
         std::pair<int,int> current_occupants (current_occupant_1,current_occupant_1);
-        std::pair<int,int> new_occupants (new_occupant_1,new_occupant_2)
+        std::pair<int,int> new_occupants (new_occupant_1,new_occupant_2);
 
         // Update delta properties in m_event
         // Zeyu: Pairs are passing into _update_deltas()
@@ -231,7 +231,8 @@ namespace CASM {
           Index new_species_2 = m_site_swaps.sublat_to_mol()[sublat_2][new_occupant_2];
 
           _log() << "  components: " << jsonParser(primclex().composition_axes().components()) << "\n"
-                 << "  d(N): " << m_event.dN().transpose() << "\n"
+                 << "  d(N1): " << m_event.dN().first.transpose() << "\n"
+                 << "  d(N2): " << m_event.dN().second.transpose() << "\n"
                  << "    dx_dn: \n" << Mpinv << "\n"
                  << "    param_chem_pot.transpose() * dx_dn: \n" << param_chem_pot.transpose()*Mpinv << "\n"
                  << "    param_chem_pot.transpose() * dx_dn * dN: " << param_chem_pot.transpose()*Mpinv *m_event.dN().first.cast<double>() << "\n"
@@ -240,8 +241,8 @@ namespace CASM {
 
                  << "Swap step 2: d(Nunit * param_chem_pot * x): " << exchange_chem_pot(new_species_2, curr_species_2) << "\n"
 
-                 << "  d(Ef): " << m_event.dEf().second << "\n"
-                 << "  d(Epot): " << m_event.dEf().second - exchange_chem_pot(new_species_2, curr_species_2) << "\n"
+                 << "  d(Ef2): " << m_event.dEf().second << "\n"
+                 << "  d(Epot2): " << m_event.dEf().second - exchange_chem_pot(new_species_2, curr_species_2) << "\n"
                  << std::endl;
         }
 
