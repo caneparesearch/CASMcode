@@ -169,19 +169,19 @@ namespace CASM {
         // Zeyu: 2 mutations at the same time; pick one Na/Va and one Si/P with the same occupancy and flip them together
         do{
           // Randomly pick a site that's allowed more than one occupant
-          Index random_variable_site_1 = _mtrand().randInt(m_site_swaps.variable_sites().size() - 1);
-          Index random_variable_site_2 = _mtrand().randInt(m_site_swaps.variable_sites().size() - 1);
+          random_variable_site_1 = _mtrand().randInt(m_site_swaps.variable_sites().size() - 1);
+          random_variable_site_2 = _mtrand().randInt(m_site_swaps.variable_sites().size() - 1);
 
         // Determine what that site's linear index is and what the sublattice index is
-          Index mutating_site_1 = m_site_swaps.variable_sites()[random_variable_site_1];
-          Index mutating_site_2 = m_site_swaps.variable_sites()[random_variable_site_2];
+          mutating_site_1 = m_site_swaps.variable_sites()[random_variable_site_1];
+          mutating_site_2 = m_site_swaps.variable_sites()[random_variable_site_2];
 
-          Index sublat_1 = m_site_swaps.sublat()[random_variable_site_1];
-          Index sublat_2 = m_site_swaps.sublat()[random_variable_site_2];
+          sublat_1 = m_site_swaps.sublat()[random_variable_site_1];
+          sublat_2 = m_site_swaps.sublat()[random_variable_site_2];
       
           // Determine the current occupant of the mutating site
-          int current_occupant_1 = configdof().occ(mutating_site_1);
-          int current_occupant_2 = configdof().occ(mutating_site_2);
+          current_occupant_1 = configdof().occ(mutating_site_1);
+          current_occupant_2 = configdof().occ(mutating_site_2);
         }
         while (((sublat_1 <= 8 && sublat_2 > 8) || (sublat_1 > 8 && sublat_2 <= 8)) && (current_occupant_1 == current_occupant_2));
 
@@ -468,7 +468,7 @@ namespace CASM {
     _clexulator().set_nlist(nlist().sites(nlist().unitcell_index(mutating_site)).data());
     Eigen::VectorXd before;
     Eigen::VectorXd after;
-    
+
     if(use_deltas) {
       // Calculate the change in correlations due to this event
       if(all_correlations) {
@@ -508,12 +508,12 @@ namespace CASM {
     }
     else {
       if (!event.is_swapped()){
-      Eigen::VectorXd before { Eigen::VectorXd::Zero(event.dCorr().first.size()) };
-      Eigen::VectorXd after { Eigen::VectorXd::Zero(event.dCorr().first.size()) };
+      before { Eigen::VectorXd::Zero(event.dCorr().first.size()) };
+      after { Eigen::VectorXd::Zero(event.dCorr().first.size()) };
       }
       if (event.is_swapped()){
-      Eigen::VectorXd before { Eigen::VectorXd::Zero(event.dCorr().second.size()) };
-      Eigen::VectorXd after { Eigen::VectorXd::Zero(event.dCorr().second.size()) };        
+      before { Eigen::VectorXd::Zero(event.dCorr().second.size()) };
+      after { Eigen::VectorXd::Zero(event.dCorr().second.size()) };        
       }
 
       // Calculate the change in points correlations due to this event
