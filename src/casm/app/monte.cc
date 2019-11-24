@@ -213,7 +213,7 @@ namespace CASM {
     if(monte_settings.ensemble() == Monte::ENSEMBLE::GrandCanonical) {
       return _run_GrandCanonical(primclex, monte_settings, args, monte_opt);
     }
-    if(monte_settings.ensemble() == Monte::ENSEMBLE::ChargeNeutralGrandCanonical) {
+    else if(monte_settings.ensemble() == Monte::ENSEMBLE::ChargeNeutralGrandCanonical) {
       return _run_ChargeNeutralGrandCanonical(primclex, monte_settings, args, monte_opt);
     }
     else if(monte_settings.ensemble() == Monte::ENSEMBLE::Canonical) {
