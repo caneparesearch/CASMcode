@@ -432,10 +432,10 @@ namespace CASM {
 
 	/// \brief Write results to files
     void ChargeNeutralGrandCanonical::write_results(Index cond_index) const{
-        CASM::write_results(settings(), GrandCanonical, _log());
-        write_conditions_json(settings(), GrandCanonical, cond_index, _log());
-        write_observations(settings(), GrandCanonical, cond_index, _log());
-        write_trajectory(settings(), GrandCanonical, cond_index, _log());
+        CASM::write_results(settings(), *this, _log());
+        write_conditions_json(settings(), *this, cond_index, _log());
+        write_observations(settings(), *this, cond_index, _log());
+        write_trajectory(settings(), *this, cond_index, _log());
         //write_pos_trajectory(settings(), *this, cond_index);
     }
 
