@@ -8,7 +8,7 @@ namespace CASM {
     const Monte::ENSEMBLE ChargeNeutralGrandCanonical::ensemble = Monte::ENSEMBLE::GrandCanonical; //Zeyu : not sure if this is correct??
 
     // <- Zeyu: same as GrandCanonical.cc
-    ChargeNeutralGrandCanonical::ChargeNeutralGrandCanonical(PrimClex &primclex, const SettingsType &settings, Log &_log):
+    ChargeNeutralGrandCanonical::ChargeNeutralGrandCanonical(PrimClex &primclex, const SettingsType &settings, Log &log):
     MonteCarlo(primclex, settings, log),
     m_site_swaps(supercell()),
     m_formation_energy_clex(primclex, settings.formation_energy(primclex)),
