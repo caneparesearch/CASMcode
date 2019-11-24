@@ -643,6 +643,10 @@ namespace CASM {
         double dEpot_1 = event.dEf().first - m_condition.exchange_chem_pot(new_species_1, curr_species_1);
         event.set_dEpot(dEpot_1);
 
+        // back up site 1 occupation
+        auto occ_1 = _configdof().occ(event.occupational_change().first.site_index());
+        event.set_original_occ_first_swap(occ_1);
+
         // // Site 1 modification finished, update configuration ....
         _configdof().occ(event.occupational_change().first.site_index()) = event.occupational_change().first.to_value();
         
@@ -680,7 +684,7 @@ namespace CASM {
         event.set_dEpot_swapped_twice(dEpot_1+dEpot_2);
 
         // Zeyu: after get dEpot_swapped_twice, change configuration back to origin....
-        _configdof().occ(event.occupational_change().first.site_index()) = event.occupational_change().first.from_value();
+        _configdof().occ(event.occupational_change().first.site_index()) = event.original_occ_first_swap();
 
         
     }
