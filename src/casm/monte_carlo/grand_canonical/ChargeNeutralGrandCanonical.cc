@@ -185,18 +185,19 @@ namespace CASM {
         int new_occupant_2 = possible_mutation_2[_mtrand().randInt(possible_mutation_2.size() - 1)];
 
         if(debug()) {
-          const auto &site_occ = primclex().get_prim().basis[sublat].site_occupant();
+          const auto &site_occ_1 = primclex().get_prim().basis[sublat_1].site_occupant();
+          const auto &site_occ_2 = primclex().get_prim().basis[sublat_2].site_occupant();
           _log().custom("Propose charge neutral grand canonical event");
 
           _log()  << "  Mutating site 1 (linear index): " << mutating_site_1 << "\n"
                   << "  Mutating site (b, i, j, k): " << supercell().uccoord(mutating_site_1) << "\n"
-                  << "  Current occupant: " << current_occupant_1 << " (" << site_occ[current_occupant_1].name << ")\n"
-                  << "  Proposed occupant: " << new_occupant_1 << " (" << site_occ[new_occupant_1].name << ")\n\n"
+                  << "  Current occupant: " << current_occupant_1 << " (" << site_occ_1[current_occupant_1].name << ")\n"
+                  << "  Proposed occupant: " << new_occupant_1 << " (" << site_occ_1[new_occupant_1].name << ")\n\n"
 
                   << "  Mutating site 2 (linear index): " << mutating_site_2 << "\n"
                   << "  Mutating site (b, i, j, k): " << supercell().uccoord(mutating_site_2) << "\n"
-                  << "  Current occupant: " << current_occupant_2 << " (" << site_occ[current_occupant_2].name << ")\n"
-                  << "  Proposed occupant: " << new_occupant_2 << " (" << site_occ[new_occupant_2].name << ")\n\n"
+                  << "  Current occupant: " << current_occupant_2 << " (" << site_occ_2[current_occupant_2].name << ")\n"
+                  << "  Proposed occupant: " << new_occupant_2 << " (" << site_occ_2[new_occupant_2].name << ")\n\n"
 
                   << "  beta: " << m_condition.beta() << "\n"
                   << "  T: " << m_condition.temperature() << std::endl;
