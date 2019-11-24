@@ -1,7 +1,6 @@
 #include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonical.hh"
 #include "casm/clex/PrimClex.hh"
 #include "casm/monte_carlo/grand_canonical/GrandCanonicalIO.hh"
-#include "casm/monte_carlo/MonteIO_impl.hh"
 
 
 namespace CASM {
