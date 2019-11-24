@@ -158,7 +158,7 @@ namespace CASM {
 
     /// \brief Propose a new event, calculate delta properties, and return reference to it
     /// <- Zeyu: This is different from GrandCanonical.cc, under construction......
-    const ChargeNeutralGrandCanonical::EventType &propose(){
+    const ChargeNeutralGrandCanonical::EventType &ChargeNeutralGrandCanonical::propose(){
 
         // Zeyu: 2 mutations at the same time; pick one Na/Va and one Si/P with the same occupancy and flip them together
         do{
