@@ -108,14 +108,14 @@ class ChargeNeutralGrandCanonicalEvent {
   /// \param Ncorr The total number of correlations that could be calculated (use Clexulator::corr_size)
   ///
   inline ChargeNeutralGrandCanonicalEvent::ChargeNeutralGrandCanonicalEvent(size_type Nspecies, size_type Ncorr){
-		// if (!is_swapped()){
+		if (!is_swapped()){
 			m_dCorr.first = Eigen::VectorXd(Ncorr);
-			m_dN.first = Eigen::VectorXd(Nspecies);
-		// }
-		// if (is_swapped()){
-		// 	m_dCorr.second = Eigen::VectorXd(Ncorr);
-		// 	m_dN.second = Eigen::VectorXd(Nspecies);
-		// }
+			m_dN.first = Eigen::VectorXl(Nspecies);
+		}
+		if (is_swapped()){
+			m_dCorr.second = Eigen::VectorXd(Ncorr);
+			m_dN.second = Eigen::VectorXl(Nspecies);
+		}
 	 }
 
 	  /// \brief Return change in total (formation) energy associated with this event
