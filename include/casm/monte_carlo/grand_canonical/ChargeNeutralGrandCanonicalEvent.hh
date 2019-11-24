@@ -64,8 +64,8 @@ class ChargeNeutralGrandCanonicalEvent {
     	/// \brief const Access the changes in (extensive) correlations associated with this event
     	const std::pair<Eigen::VectorXd,Eigen::VectorXd> &dCorr() const;
 
-		void set_original_occ_first_swap(auto occ);
-		auto const original_occ_first_swap() const;
+		void set_original_occ_first_swap(int occ);
+		int const original_occ_first_swap() const;
 
 	
 		void set_is_swapped(bool is_swapped);
@@ -97,7 +97,7 @@ class ChargeNeutralGrandCanonicalEvent {
 		/// dEpot for two swaps
 		double m_dEpot_swapped_twice;
 		bool m_is_swapped;
-		auto m_original_occ_first_swap;
+		int m_original_occ_first_swap;
 		
 
 };
@@ -215,10 +215,10 @@ class ChargeNeutralGrandCanonicalEvent {
 	  inline const double ChargeNeutralGrandCanonicalEvent::dEpot_swapped_twice() const{
 	    return m_dEpot_swapped_twice;
 	  }	
-	  inline void ChargeNeutralGrandCanonicalEvent::set_original_occ_first_swap(auto occ){
+	  inline void ChargeNeutralGrandCanonicalEvent::set_original_occ_first_swap(int occ){
 		  m_original_occ_first_swap = occ;
 	  }
-	  inline const auto ChargeNeutralGrandCanonicalEvent::original_occ_first_swap() const{
+	  inline const int ChargeNeutralGrandCanonicalEvent::original_occ_first_swap() const{
 		  return m_original_occ_first_swap;
 	  }
 
