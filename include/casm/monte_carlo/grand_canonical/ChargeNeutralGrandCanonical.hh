@@ -83,7 +83,7 @@ class ChargeNeutralGrandCanonical : public MonteCarlo{
     void write_results(Index cond_index) const;
 
     /// \brief Calculate the single spin flip low temperature expansion of the grand canonical potential
-    double lte_grand_canonical_free_energy() const;
+    // double lte_grand_canonical_free_energy() const;
 
     /// \brief Formation energy, normalized per primitive cell
     const double &formation_energy() const {
