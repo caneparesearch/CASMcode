@@ -156,7 +156,7 @@ class ChargeNeutralGrandCanonical : public MonteCarlo{
 	/// the results inside the containers hosted by event.
 	  void _update_deltas(EventType &event, 
 						std::pair<Index,Index> &mutating_sites,
-						std::pair<int,int> &sublats,
+						std::pair<Index,Index> &sublats,
 						std::pair<int,int> &curr_occs,
 						std::pair<int,int> &new_occs) const;
     

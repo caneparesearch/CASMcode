@@ -610,7 +610,7 @@ namespace CASM {
     /// and use it to for check()
 	void ChargeNeutralGrandCanonical::_update_deltas(EventType &event, 
 						std::pair<Index,Index> &mutating_sites,
-						std::pair<int,int> &sublats,
+						std::pair<Index,Index> &sublats,
 						std::pair<int,int> &curr_occs,
 						std::pair<int,int> &new_occs) const{
         // reset the flag
