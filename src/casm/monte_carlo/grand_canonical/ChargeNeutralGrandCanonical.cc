@@ -1,5 +1,4 @@
 #include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonical.hh"
-#include "casm/monte_carlo/grand_canonical/GrandCanonicalEvent.hh"
 #include "casm/clex/PrimClex.hh"
 #include "casm/monte_carlo/grand_canonical/GrandCanonicalIO.hh"
 #include "casm/monte_carlo/MonteIO_impl.hh"
