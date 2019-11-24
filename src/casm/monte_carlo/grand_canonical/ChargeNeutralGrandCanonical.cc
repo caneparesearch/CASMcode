@@ -644,8 +644,7 @@ namespace CASM {
         event.set_dEpot(dEpot_1);
 
         // back up site 1 occupation
-        auto occ_1 = _configdof().occ(event.occupational_change().first.site_index());
-        event.set_original_occ_first_swap(occ_1);
+        event.set_original_occ_first_swap(_configdof().occ(event.occupational_change().first.site_index()));
 
         // // Site 1 modification finished, update configuration ....
         _configdof().occ(event.occupational_change().first.site_index()) = event.occupational_change().first.to_value();

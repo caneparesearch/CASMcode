@@ -97,7 +97,7 @@ class ChargeNeutralGrandCanonicalEvent {
 		/// dEpot for two swaps
 		double m_dEpot_swapped_twice;
 		bool m_is_swapped;
-		auto m_orignal_occ_first_swap;
+		auto m_original_occ_first_swap;
 		
 
 };
@@ -219,7 +219,7 @@ class ChargeNeutralGrandCanonicalEvent {
 		  m_original_occ_first_swap = occ;
 	  }
 	  inline const auto ChargeNeutralGrandCanonicalEvent::original_occ_first_swap() const{
-		  return m_orignal_occ_first_swap;
+		  return m_original_occ_first_swap;
 	  }
 
 }
