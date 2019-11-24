@@ -1,8 +1,8 @@
-#include "casm/monte_carlo/grand_canonical/ChargeNeutralChargeNeutralGrandCanonical.hh"
+#include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonicalIO.hh"
 
 #include "casm/CASM_global_definitions.hh"
 #include "casm/casm_io/DataFormatter.hh"
-#include "casm/monte_carlo/grand_canonical/ChargeNeutralChargeNeutralGrandCanonical.hh"
+#include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonical.hh"
 #include "casm/monte_carlo/MonteIO_impl.hh"
 
 namespace CASM {
