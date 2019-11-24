@@ -65,7 +65,7 @@ class ChargeNeutralGrandCanonicalEvent {
     	const std::pair<Eigen::VectorXd,Eigen::VectorXd> &dCorr() const;
 
 		void set_original_occ_first_swap(auto occ);
-		auto const orignal_occ_first_swap() const;
+		auto const original_occ_first_swap() const;
 
 	
 		void set_is_swapped(bool is_swapped);
