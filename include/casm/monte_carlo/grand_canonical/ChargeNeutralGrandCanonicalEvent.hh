@@ -219,7 +219,7 @@ class ChargeNeutralGrandCanonicalEvent {
 		  m_original_occ_first_swap = occ;
 	  }
 	  inline const auto ChargeNeutralGrandCanonicalEvent::original_occ_first_swap() const{
-		  return m_occ_first_swap;
+		  return m_orignal_occ_first_swap;
 	  }
 
 }
