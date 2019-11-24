@@ -1,6 +1,7 @@
 #include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonical.hh"
 #include "casm/monte_carlo/grand_canonical/GrandCanonicalEvent.hh"
 #include "casm/clex/PrimClex.hh"
+#include "casm/monte_carlo/grand_canonical/GrandCanonicalIO.hh"
 
 namespace CASM {
     const Monte::ENSEMBLE ChargeNeutralGrandCanonical::ensemble = Monte::ENSEMBLE::GrandCanonical; //Zeyu : not sure if this is correct??
@@ -159,7 +160,10 @@ namespace CASM {
     /// \brief Propose a new event, calculate delta properties, and return reference to it
     /// <- Zeyu: This is different from GrandCanonical.cc, under construction......
     const ChargeNeutralGrandCanonical::EventType &ChargeNeutralGrandCanonical::propose(){
-
+        Index random_variable_site_1,random_variable_site_2;
+        Index mutating_site_1,mutating_site_2;
+        Index sublat_1,sublat_2;
+        int current_occupant_1,current_occupant_2;
         // Zeyu: 2 mutations at the same time; pick one Na/Va and one Si/P with the same occupancy and flip them together
         do{
           // Randomly pick a site that's allowed more than one occupant
