@@ -451,7 +451,7 @@ namespace CASM {
                                   int current_occupant,
                                   int new_occupant,
                                   bool use_deltas,
-                                  bool all_correlations, int this_site) const {
+                                  bool all_correlations) const {
 
     // uses _clexulator(), nlist(), _configdof()
 
@@ -462,13 +462,13 @@ namespace CASM {
     if(use_deltas) {
       // Calculate the change in correlations due to this event
       if(all_correlations) {
-        if (this_site == 1) {
+        if (!event.is_swapped()) {
         _clexulator().calc_delta_point_corr(sublat,
                                             current_occupant,
                                             new_occupant,
                                             event.dCorr().first.data());
                                             }
-        if (this_site == 2) {
+        if (event.is_swapped()) {
         _clexulator().calc_delta_point_corr(sublat,
                                             current_occupant,
                                             new_occupant,
@@ -478,7 +478,7 @@ namespace CASM {
       else {
         auto begin = _eci().index().data();
         auto end = begin + _eci().index().size();
-        if (this_site == 1){
+        if (!event.is_swapped()){
         _clexulator().calc_restricted_delta_point_corr(sublat,
                                                        current_occupant,
                                                        new_occupant,
@@ -486,7 +486,7 @@ namespace CASM {
                                                        begin,
                                                        end);
         }
-        if (this_site == 2){
+        if (event.is_swapped()){
         _clexulator().calc_restricted_delta_point_corr(sublat,
                                                        current_occupant,
                                                        new_occupant,
@@ -497,11 +497,11 @@ namespace CASM {
       }
     }
     else {
-      if (this_site == 1){
+      if (!event.is_swapped()){
       Eigen::VectorXd before { Eigen::VectorXd::Zero(event.dCorr().first.size()) };
       Eigen::VectorXd after { Eigen::VectorXd::Zero(event.dCorr().first.size()) };
       }
-      if (this_site == 2){
+      if (event.is_swapped()){
       Eigen::VectorXd before { Eigen::VectorXd::Zero(event.dCorr().second.size()) };
       Eigen::VectorXd after { Eigen::VectorXd::Zero(event.dCorr().second.size()) };        
       }
@@ -534,10 +534,10 @@ namespace CASM {
       }
 
       // Calculate the change in correlations due to this event
-      if (this_site == 1){
+      if (!event.is_swapped()){
       event.dCorr().first = after - before;
       }
-      if (this_site == 2){
+      if (event.is_swapped()){
       event.dCorr().second = after - before;  
       }
 
@@ -546,10 +546,10 @@ namespace CASM {
     }
 
     if(debug()) {
-      if (this_site == 1){
+      if (!event.is_swapped()){
       _print_correlations(event.dCorr().first, "delta correlations", "dCorr", all_correlations);
       }
-      if (this_site == 2){
+      if (event.is_swapped()){
       _print_correlations(event.dCorr().second, "delta correlations", "dCorr", all_correlations);
       }
     }
@@ -605,7 +605,7 @@ namespace CASM {
 						std::pair<int,int> &new_occs) const{
         // reset the flag
         event.set_is_swapped(False);
-        
+
         // Site 1
         // ---- set OccMod --------------
         event.occupational_change().first.set(mutating_sites.first, sublats.first, new_occs.first);
@@ -622,7 +622,7 @@ namespace CASM {
 
         // ---- set dcorr --------------
 
-        _set_dCorr(event, mutating_sites.first, sublats.first, curr_occs.first, new_occs.first, m_use_delta, m_all_correlation, 1); // Zeyu: Shall we rewrite _set_dCorr?
+        _set_dCorr(event, mutating_sites.first, sublats.first, curr_occs.first, new_occs.first, m_use_delta, m_all_correlation); // Zeyu: Shall we rewrite _set_dCorr?
 
         // ---- set dformation_energy --------------
 
@@ -656,7 +656,7 @@ namespace CASM {
 
         // ---- set dcorr --------------
 
-        _set_dCorr(event, mutating_sites.second, sublats.second, curr_occs.second, new_occs.second, m_use_delta, m_all_correlation, 2);
+        _set_dCorr(event, mutating_sites.second, sublats.second, curr_occs.second, new_occs.second, m_use_delta, m_all_correlation);
        
         // ---- set dformation_energy --------------
 

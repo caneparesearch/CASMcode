@@ -102,11 +102,11 @@ class ChargeNeutralGrandCanonicalEvent {
   /// \param Ncorr The total number of correlations that could be calculated (use Clexulator::corr_size)
   ///
   inline ChargeNeutralGrandCanonicalEvent::ChargeNeutralGrandCanonicalEvent(size_type Nspecies, size_type Ncorr){
-		if (!is_swapped){
+		if (!is_swapped()){
 			m_dCorr.first = Eigen::VectorXd(Ncorr);
 			m_dCorr.second = Eigen::VectorXd(Nspecies);
 		}
-		if (is_swapped){
+		if (is_swapped()){
 			m_dCorr.first = Eigen::VectorXd(Ncorr);
 			m_dCorr.second = Eigen::VectorXd(Nspecies);
 		}
@@ -118,10 +118,10 @@ class ChargeNeutralGrandCanonicalEvent {
 	  }
 	  /// \brief Set the change in total (formation) energy associated with this event
 	  inline void ChargeNeutralGrandCanonicalEvent::set_dEf(double dEf) {
-		if(!is_swapped){
+		if(!is_swapped()){
 			m_dEf.first = dEf;
 		}
-		if (is_swapped){
+		if (is_swapped()){
 	   		m_dEf.second = dEf;
 		}
 	  }
@@ -137,30 +137,30 @@ class ChargeNeutralGrandCanonicalEvent {
 
 	  /// \brief const Access change in number of species (extensive) described by size_type. Order as in CompositionConverter::components().
 	  inline long int ChargeNeutralGrandCanonicalEvent::dN(size_type species_type_index) const {
-		if(!is_swapped){
+		if(!is_swapped()){
 			return m_dN.first(species_type_index);
 		}
-		if (is_swapped){
+		if (is_swapped()){
 	   		return m_dN.second(species_type_index);
 		}
 	  }
 
 	  /// \brief Set the change in number of species (extensive) described by size_type. Order as in CompositionConverter::components().
 	  inline void ChargeNeutralGrandCanonicalEvent::set_dN(size_type species_type_index, long int dNi) {
-		if(!is_swapped){
+		if(!is_swapped()){
 			 m_dN.first(species_type_index) = dNi;
 		}
-		if (is_swapped){
+		if (is_swapped()){
 	   		 m_dN.second(species_type_index) = dNi;
 		}
 	  }
 
 	  /// \brief Set the change in potential energy: dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
 	  inline void ChargeNeutralGrandCanonicalEvent::set_dEpot(double dEpot) {
-		if(!is_swapped){
+		if(!is_swapped()){
 			m_dEpot.first = dEpot;
 		}
-		if (is_swapped){
+		if (is_swapped()){
 	   		m_dEpot.second = dEpot;
 		}
 	  }
