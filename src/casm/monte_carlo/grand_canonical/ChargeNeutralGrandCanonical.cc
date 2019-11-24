@@ -1,4 +1,5 @@
 #include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonical.hh"
+#include "casm/monte_carlo/grand_canonical/GrandCanonical.hh"
 #include "casm/clex/PrimClex.hh"
 #include "casm/monte_carlo/grand_canonical/GrandCanonicalIO.hh"
 #include "casm/monte_carlo/MonteIO_impl.hh"
@@ -55,7 +56,7 @@ namespace CASM {
 
     /// \brief Return current conditions 
     /// <- Zeyu: same as GrandCanonical.cc
-    const ChargeNeutralGrandCanonical::CondType &conditions() const{
+    const GrandCanonical::CondType &conditions() const{
         return m_condition;
     }
   
