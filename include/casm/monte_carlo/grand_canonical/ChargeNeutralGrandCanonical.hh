@@ -144,7 +144,7 @@ class ChargeNeutralGrandCanonical : public MonteCarlo{
                                   int current_occupant,
                                   int new_occupant,
                                   bool use_deltas,
-                                  bool all_correlations, int this_site) const;
+                                  bool all_correlations) const;
 
     /// \brief Print correlations to _log()
     void _print_correlations(const Eigen::VectorXd &corr,
