@@ -4,7 +4,6 @@
 #include "casm/casm_io/DataFormatter.hh"
 #include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonical.hh"
 #include "casm/monte_carlo/MonteIO_impl.hh"
-#include "casm/monte_carlo/grand_canonical/GrandCanonicalConditions.hh"
 
 namespace CASM {
 
@@ -228,20 +227,20 @@ namespace CASM {
   /// }
   /// \endcode
   ///
-  jsonParser &to_json(const GrandCanonicalConditions &conditions, jsonParser &json) {
-    json.put_obj();
-    json["temperature"] = conditions.temperature();
-    json["param_chem_pot"] = jsonParser::object();
-    auto param_chem_pot = conditions.param_chem_pot();
-    for(int i = 0; i < param_chem_pot.size(); i++) {
-      json["param_chem_pot"][CompositionConverter::comp_var(i)] = param_chem_pot(i);
-    }
-    json["tolerance"] = conditions.tolerance();
+  // jsonParser &to_json(const GrandCanonicalConditions &conditions, jsonParser &json) {
+  //   json.put_obj();
+  //   json["temperature"] = conditions.temperature();
+  //   json["param_chem_pot"] = jsonParser::object();
+  //   auto param_chem_pot = conditions.param_chem_pot();
+  //   for(int i = 0; i < param_chem_pot.size(); i++) {
+  //     json["param_chem_pot"][CompositionConverter::comp_var(i)] = param_chem_pot(i);
+  //   }
+  //   json["tolerance"] = conditions.tolerance();
 
-    return json;
-  }
+  //   return json;
+  // }
 
-  /// \brief Read ChargeNeutralGrandCanonicalConditions from JSON format
+  /// \brief Read GrandCanonicalConditions from JSON format //Zeyu: already defined in GrandCanonicalIO
   ///
   /// \code
   /// {
@@ -251,20 +250,20 @@ namespace CASM {
   /// }
   /// \endcode
   ///
-  void from_json(GrandCanonicalConditions &conditions, const PrimClex &primclex, const jsonParser &json) {
+  // void from_json(GrandCanonicalConditions &conditions, const PrimClex &primclex, const jsonParser &json) {
 
-    double temp = json["temperature"].get<double>();
-    double tol = json["tolerance"].get<double>();
+  //   double temp = json["temperature"].get<double>();
+  //   double tol = json["tolerance"].get<double>();
 
-    int Nparam = primclex.composition_axes().independent_compositions();
-    Eigen::VectorXd param_chem_pot(Nparam);
+  //   int Nparam = primclex.composition_axes().independent_compositions();
+  //   Eigen::VectorXd param_chem_pot(Nparam);
 
-    for(int i = 0; i < Nparam; i++) {
-      param_chem_pot(i) = json["param_chem_pot"][CompositionConverter::comp_var(i)].get<double>();
-    }
+  //   for(int i = 0; i < Nparam; i++) {
+  //     param_chem_pot(i) = json["param_chem_pot"][CompositionConverter::comp_var(i)].get<double>();
+  //   }
 
-    conditions = GrandCanonicalConditions(primclex, temp, param_chem_pot, tol);
-  }
+  //   conditions = GrandCanonicalConditions(primclex, temp, param_chem_pot, tol);
+  // }
 
 
   // /// \brief Print single spin flip LTE
