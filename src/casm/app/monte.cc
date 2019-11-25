@@ -209,13 +209,13 @@ namespace CASM {
       args.err_log << e.what() << std::endl;
       return 1;
     }
-// Zeyu: I changed below
+// Zeyu: I changed below for GrandCanonical
     if(monte_settings.ensemble() == Monte::ENSEMBLE::GrandCanonical) {
-      return _run_GrandCanonical(primclex, monte_settings, args, monte_opt);
-    }
-    else if(monte_settings.ensemble() == Monte::ENSEMBLE::ChargeNeutralGrandCanonical) {
       return _run_ChargeNeutralGrandCanonical(primclex, monte_settings, args, monte_opt);
     }
+    // else if(monte_settings.ensemble() == Monte::ENSEMBLE::ChargeNeutralGrandCanonical) {
+    //   return _run_ChargeNeutralGrandCanonical(primclex, monte_settings, args, monte_opt);
+    // }
     else if(monte_settings.ensemble() == Monte::ENSEMBLE::Canonical) {
       return _run_Canonical(primclex, monte_settings, args, monte_opt);
     }

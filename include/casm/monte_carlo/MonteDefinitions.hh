@@ -10,8 +10,7 @@ namespace CASM {
     /// \brief Monte Carlo ensemble type // Zeyu: I added this
     enum class ENSEMBLE {
       GrandCanonical, 
-      Canonical,
-      ChargeNeutralGrandCanonical
+      Canonical
     };
 
     ENUM_IO(CASM::Monte::ENSEMBLE)
