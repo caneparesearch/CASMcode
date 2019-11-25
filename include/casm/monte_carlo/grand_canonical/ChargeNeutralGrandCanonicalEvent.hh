@@ -111,10 +111,10 @@ class ChargeNeutralGrandCanonicalEvent {
 		if (!is_swapped()){
 			m_dCorr.first = Eigen::VectorXd(Ncorr);
 			m_dN.first = Eigen::VectorXl(Nspecies);
-		}
-		if (is_swapped()){
 			m_dCorr.second = Eigen::VectorXd(Ncorr);
-			m_dN.second = Eigen::VectorXl(Nspecies);
+			m_dN.second = Eigen::VectorXl(Nspecies);			
+		}
+		if (is_swapped()){ // for initialization....
 		}
 	 }
 

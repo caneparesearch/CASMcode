@@ -196,11 +196,13 @@ namespace CASM {
           _log().custom("Propose charge neutral grand canonical event");
 
           _log()  << "  Mutating site 1 (linear index): " << mutating_site_1 << "\n"
+                  << "  Sublattice: "<< sublat_1<<"\n"
                   << "  Mutating site (b, i, j, k): " << supercell().uccoord(mutating_site_1) << "\n"
                   << "  Current occupant: " << current_occupant_1 << " (" << site_occ_1[current_occupant_1].name << ")\n"
                   << "  Proposed occupant: " << new_occupant_1 << " (" << site_occ_1[new_occupant_1].name << ")\n\n"
 
                   << "  Mutating site 2 (linear index): " << mutating_site_2 << "\n"
+                  << "  Sublattice: "<< sublat_2<<"\n"
                   << "  Mutating site (b, i, j, k): " << supercell().uccoord(mutating_site_2) << "\n"
                   << "  Current occupant: " << current_occupant_2 << " (" << site_occ_2[current_occupant_2].name << ")\n"
                   << "  Proposed occupant: " << new_occupant_2 << " (" << site_occ_2[new_occupant_2].name << ")\n\n"
@@ -508,7 +510,7 @@ namespace CASM {
       Eigen::VectorXd before;
       Eigen::VectorXd after;
       if (!event.is_swapped()){
-      before = Eigen::VectorXd::Zero(event.dCorr().first.size());
+      before = Eigen::VectorXd::Zero(event.dCorr().first.size()); //Zeyu: is this correct????
       after = Eigen::VectorXd::Zero(event.dCorr().first.size());
       }
       if (event.is_swapped()){
