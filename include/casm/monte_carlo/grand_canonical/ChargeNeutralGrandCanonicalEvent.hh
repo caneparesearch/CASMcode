@@ -108,14 +108,15 @@ class ChargeNeutralGrandCanonicalEvent {
   /// \param Ncorr The total number of correlations that could be calculated (use Clexulator::corr_size)
   ///
   inline ChargeNeutralGrandCanonicalEvent::ChargeNeutralGrandCanonicalEvent(size_type Nspecies, size_type Ncorr){
-		if (!is_swapped()){
+		// if (!is_swapped()){
 			m_dCorr.first = Eigen::VectorXd(Ncorr);
 			m_dN.first = Eigen::VectorXl(Nspecies);
 			m_dCorr.second = Eigen::VectorXd(Ncorr);
-			m_dN.second = Eigen::VectorXl(Nspecies);			
-		}
-		if (is_swapped()){ // for initialization....
-		}
+			m_dN.second = Eigen::VectorXl(Nspecies);
+
+		// }
+		// if (is_swapped()){ // for initialization....
+		// }
 	 }
 
 	  /// \brief Return change in total (formation) energy associated with this event
@@ -153,8 +154,11 @@ class ChargeNeutralGrandCanonicalEvent {
 
 	  /// \brief Set the change in number of species (extensive) described by size_type. Order as in CompositionConverter::components().
 	  inline void ChargeNeutralGrandCanonicalEvent::set_dN(size_type species_type_index, long int dNi) {
+		  std::cout<<"set_dN ... "<<std::endl;
 		if(!is_swapped()){
+			std::cout<<"not swapped: !"<<is_swapped()<<" "<<species_type_index<<" "<<dNi<<std::endl;
 			 m_dN.first(species_type_index) = dNi;
+			 std::cout<<m_dN.first<<std::endl;
 		}
 		if (is_swapped()){
 	   		 m_dN.second(species_type_index) = dNi;

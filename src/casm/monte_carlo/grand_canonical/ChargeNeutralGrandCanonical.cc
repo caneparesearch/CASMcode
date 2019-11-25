@@ -630,8 +630,11 @@ namespace CASM {
           event.set_dN(i, 0);
         }
         std::cout<<"3..."<<std::endl;
+        std::cout<<"3..."<<sublats.first<<' '<<curr_occs.first<<std::endl;
         Index curr_species_1 = m_site_swaps.sublat_to_mol()[sublats.first][curr_occs.first];
+        std::cout<<"3..."<<sublats.first<<' '<<new_occs.first<<std::endl;
         Index new_species_1 = m_site_swaps.sublat_to_mol()[sublats.first][new_occs.first];
+        std::cout<<"3..."<<curr_species_1<<' '<<new_species_1<<std::endl;
         event.set_dN(curr_species_1, -1);
         event.set_dN(new_species_1, 1);
 

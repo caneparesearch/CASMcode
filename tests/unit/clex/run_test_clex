@@ -1,0 +1,7 @@
+#!/bin/bash
+GROUP=clex
+export PATH=/userhome1/jerry/apps/src/CASMcode:$PATH
+cd /userhome1/jerry/apps/src/CASMcode
+mkdir -p /userhome1/jerry/apps/src/CASMcode/tests/unit/test_projects
+: ${TEST_FLAGS:="--log_level=test_suite --catch_system_errors=no"}
+/userhome1/jerry/apps/src/CASMcode/casm_unit_$GROUP ${TEST_FLAGS}
