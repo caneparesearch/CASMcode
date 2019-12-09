@@ -14,7 +14,7 @@ export CASM_PREFIX=$CONDA_PREFIX
 ### variables - Control how CASM is built  ###
 
 check_var "CASM_CXXFLAGS" "Compiler flags" ""
-check_var "CASM_NCPU" "Compiler -j option" 2
+check_var "CASM_NCPU" "Compiler -j option" 8
 
 # set OS-dependent variable defaults
 #   only CASM_CONFIGFLAGS can't be overridden from this script
