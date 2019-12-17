@@ -182,7 +182,7 @@ namespace CASM {
           current_occupant_1 = configdof().occ(mutating_site_1);
           current_occupant_2 = configdof().occ(mutating_site_2);
         }
-        while (!(((sublat_1 <= 8 && sublat_2 > 8) || (sublat_1 > 8 && sublat_2 <= 8)) && (current_occupant_1 == current_occupant_2)));
+        while (!(((sublat_1 <= 20 && sublat_2 > 20) || (sublat_1 > 20 && sublat_2 <= 20)) && (current_occupant_1 == current_occupant_2)));
 
         // Randomly pick a new occupant for the mutating site
         const std::vector<int> &possible_mutation_1 = m_site_swaps.possible_swap()[sublat_1][current_occupant_1];
