@@ -1,0 +1,32 @@
+concentration and energy of the reference states
+
+reference 0  con0.5
+sublattice 0
+Mg  Va  
+0  1  
+6.95323e-310  energy 
+sublattice 1
+V4  V5  
+1  0  
+6.95323e-310  energy 
+
+reference 1  con0.584
+sublattice 0
+Mg  Va  
+1  0  
+6.95323e-310  energy 
+sublattice 1
+V4  V5  
+0  1  
+6.95323e-310  energy 
+
+reference 2  Mg0V8O20_0
+sublattice 0
+Mg  Va  
+0  1  
+-209.162  energy 
+sublattice 1
+V4  V5  
+0  1  
+-209.162  energy 
+

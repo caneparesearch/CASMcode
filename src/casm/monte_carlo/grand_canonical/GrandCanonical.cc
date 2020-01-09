@@ -195,7 +195,6 @@ namespace CASM {
               << "  Mutating site (b, i, j, k): " << supercell().uccoord(mutating_site) << "\n"
               << "  Current occupant: " << current_occupant << " (" << site_occ[current_occupant].name << ")\n"
               << "  Proposed occupant: " << new_occupant << " (" << site_occ[new_occupant].name << ")\n\n"
-
               << "  beta: " << m_condition.beta() << "\n"
               << "  T: " << m_condition.temperature() << std::endl;
     }

@@ -22,8 +22,8 @@ def main():
       print(("Unable to report properties for directory %s. Please verify that it contains a completed VASP calculation."%configdir))
       raise
 
-    compat.dump(json, output, 'properties.calc.json', 'w', cls=noindent.NoIndentEncoder, 
-                indent=4, sort_keys=True)
+    with open('properties.calc.json', 'w') as file:
+      file.write(json.dumps(output, cls=noindent.NoIndentEncoder, indent=4, sort_keys=True))
 
     print("Finish vasp.relax.report\n\n")
 

@@ -4,6 +4,8 @@
 #include "casm/clex/PrimClex.hh"
 #include "casm/monte_carlo/grand_canonical/GrandCanonical.hh"
 #include "casm/monte_carlo/grand_canonical/GrandCanonicalIO.hh"
+#include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonical.hh"
+#include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonicalIO.hh"
 #include "casm/monte_carlo/canonical/Canonical.hh"
 #include "casm/monte_carlo/canonical/CanonicalIO.hh"
 #include "casm/monte_carlo/MonteIO.hh"
@@ -102,6 +104,12 @@ namespace CASM {
     const CommandArgs &args,
     const Completer::MonteOption &monte_opt);
 
+//Zeyu: i added this
+  int _run_ChargeNeutralGrandCanonical(
+    PrimClex &primclex,
+    const MonteSettings &monte_settings,
+    const CommandArgs &args,
+    const Completer::MonteOption &monte_opt);
 
   int monte_command(const CommandArgs &args) {
 
@@ -201,10 +209,13 @@ namespace CASM {
       args.err_log << e.what() << std::endl;
       return 1;
     }
-
+// Zeyu: I changed below for GrandCanonical
     if(monte_settings.ensemble() == Monte::ENSEMBLE::GrandCanonical) {
-      return _run_GrandCanonical(primclex, monte_settings, args, monte_opt);
+      return _run_ChargeNeutralGrandCanonical(primclex, monte_settings, args, monte_opt);
     }
+    // else if(monte_settings.ensemble() == Monte::ENSEMBLE::ChargeNeutralGrandCanonical) {
+    //   return _run_ChargeNeutralGrandCanonical(primclex, monte_settings, args, monte_opt);
+    // }
     else if(monte_settings.ensemble() == Monte::ENSEMBLE::Canonical) {
       return _run_Canonical(primclex, monte_settings, args, monte_opt);
     }
@@ -402,6 +413,127 @@ namespace CASM {
     }
     else {
       args.err_log << "ERROR running " << to_string(GrandCanonical::ensemble) << " Monte Carlo. No valid option given.\n\n";
+      return ERR_INVALID_INPUT_FILE;
+    }
+  }
+
+  int _run_ChargeNeutralGrandCanonical(
+    PrimClex &primclex,
+    const MonteSettings &monte_settings,
+    const CommandArgs &args,
+    const Completer::MonteOption &monte_opt) {
+
+    typedef ChargeNeutralGrandCanonical MCType;
+    const po::variables_map &vm = monte_opt.vm();
+
+    if(vm.count("initial-POSCAR")) {
+      return _initial_POSCAR<MCType>(primclex, args, monte_opt);
+    }
+    else if(vm.count("final-POSCAR")) {
+      return _final_POSCAR<MCType>(primclex, args, monte_opt);
+    }
+    else if(vm.count("traj-POSCAR")) {
+      return _traj_POSCAR<MCType>(primclex, args, monte_opt);
+    }
+    // else if(monte_settings.method() == Monte::METHOD::LTE1) {
+
+    //   try {
+
+    //     GrandCanonicalSettings gc_settings(primclex, monte_opt.settings_path());
+
+    //     if(gc_settings.dependent_runs()) {
+    //       throw std::invalid_argument("ERROR in LTE1 calculation: dependents_runs must be false");
+    //     }
+
+    //     bool ok = false;
+    //     if(gc_settings.is_motif_configname() &&
+    //        (gc_settings.motif_configname() == "auto" ||
+    //         gc_settings.motif_configname() == "restricted_auto")) {
+    //       ok = true;
+    //     }
+
+    //     if(!ok) {
+    //       throw std::invalid_argument("ERROR in LTE1 calculation: must use one of\n"
+    //                                   "  \"driver\"/\"motif\"/\"configname\": \"auto\"\n"
+    //                                   "  \"driver\"/\"motif\"/\"configname\": \"restricted_auto\"");
+    //     }
+
+    //     MonteCarloDirectoryStructure dir(gc_settings.output_directory());
+    //     if(gc_settings.write_csv()) {
+    //       if(fs::exists(dir.results_csv())) {
+    //         args.err_log << "Existing file at: " << dir.results_csv() << std::endl;
+    //         args.err_log << "  Exiting..." << std::endl;
+    //         return ERR_EXISTING_FILE;
+    //       }
+    //     }
+    //     if(gc_settings.write_json()) {
+    //       if(fs::exists(dir.results_json())) {
+    //         args.err_log << "Existing file at: " << dir.results_json() << std::endl;
+    //         args.err_log << "  Exiting..." << std::endl;
+    //         return ERR_EXISTING_FILE;
+    //       }
+    //     }
+
+    //     ChargeNeutralGrandCanonical gc(primclex, gc_settings, args.log);
+
+    //     // config, param_potential, T,
+    //     args.log.custom("LTE Calculation");
+    //     args.log << "Phi_LTE(1) = potential_energy_gs - kT*ln(Z'(1))/N" << std::endl;
+    //     args.log << "Z'(1) = sum_i(exp(-dPE_i/kT), summing over ground state and single spin flips" << std::endl;
+    //     args.log << "dPE_i: (potential_energy_i - potential_energy_gs)*N" << "\n\n" << std::endl;
+
+    //     auto init = gc_settings.initial_conditions();
+    //     auto incr = init;
+    //     int num_conditions = 1;
+
+    //     if(monte_settings.drive_mode() == Monte::DRIVE_MODE::INCREMENTAL) {
+
+    //       incr = gc_settings.incremental_conditions();
+    //       auto final = gc_settings.final_conditions();
+    //       num_conditions = (final - init) / incr + 1;
+    //     }
+
+    //     std::string configname;
+
+    //     auto cond = init;
+    //     for(int index = 0; index < num_conditions; ++index) {
+
+    //       configname = gc.set_state(cond, gc_settings).second;
+
+    //       if(gc.debug()) {
+    //         const auto &comp_converter = gc.primclex().composition_axes();
+    //         args.log << "formation_energy: " << std::setprecision(12) << gc.formation_energy() << std::endl;
+    //         args.log << "  components: " << jsonParser(gc.primclex().composition_axes().components()) << std::endl;
+    //         args.log << "  comp_n: " << gc.comp_n().transpose() << std::endl;
+    //         args.log << "  param_chem_pot: " << gc.conditions().param_chem_pot().transpose() << std::endl;
+    //         args.log << "  comp_x: " << comp_converter.param_composition(gc.comp_n()).transpose() << std::endl;
+    //         args.log << "potential energy: " << std::setprecision(12) << gc.potential_energy() << std::endl << std::endl;
+    //       }
+
+    //       double phi_LTE1 = gc.lte_grand_canonical_free_energy();
+
+    //       args.log.write("Output files");
+    //       write_lte_results(gc_settings, gc, phi_LTE1, configname, args.log);
+    //       args.log << std::endl;
+    //       cond += incr;
+
+    //       args.log << std::endl;
+    //     }
+
+    //     return 0;
+
+    //   }
+    //   catch(std::exception &e) {
+    //     args.err_log << "ERROR calculating single spin flip LTE grand canonical potential.\n\n";
+    //     args.err_log << e.what() << std::endl;
+    //     return 1;
+    //   }
+    // }
+    else if(monte_settings.method() == Monte::METHOD::Metropolis) {
+      return _driver<ChargeNeutralGrandCanonical>(primclex, args, monte_opt);
+    }
+    else {
+      args.err_log << "ERROR running " << to_string(ChargeNeutralGrandCanonical::ensemble) << " Monte Carlo. No valid option given.\n\n";
       return ERR_INVALID_INPUT_FILE;
     }
   }
