@@ -165,7 +165,8 @@ namespace CASM {
         Index mutating_site_1,mutating_site_2;
         Index sublat_1,sublat_2;
         int current_occupant_1,current_occupant_2;
-	int n_Na = m_site_swaps.sublat().size();
+	      int n_Na = 8;
+        
         // Zeyu: 2 mutations at the same time; pick one Na/Va and one Si/P with the same occupancy and flip them together
         do{
           // Randomly pick a site that's allowed more than one occupant
