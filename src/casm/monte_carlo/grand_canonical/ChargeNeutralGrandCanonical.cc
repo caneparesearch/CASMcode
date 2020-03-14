@@ -7,7 +7,6 @@
 namespace CASM {
     const Monte::ENSEMBLE ChargeNeutralGrandCanonical::ensemble = Monte::ENSEMBLE::ChargeNeutralGrandCanonical; //Zeyu : not sure if this is correct??
 
-    // <- Zeyu: same as GrandCanonical.cc
     ChargeNeutralGrandCanonical::ChargeNeutralGrandCanonical(PrimClex &primclex, const SettingsType &settings, Log &log):
     MonteCarlo(primclex, settings, log),
     m_site_swaps(supercell()),
@@ -343,7 +342,10 @@ namespace CASM {
   /// Phi=(\Omega_0-kB*T(ln(SUM(boltz(D\Omega_s)))))/N
   ///
   double ChargeNeutralGrandCanonical::lte_grand_canonical_free_energy() const {
-
+  // Zeyu: Everytime it will select 2 sites, and evaluate their energies when flip them, so it's a 2 flip instead of single-flip LTE
+  // it should be called LTE2 
+  // Actually, I tried to do LTE on NASICON however I found Phi_LTE is almost the same as the potential_energy since
+  // Phi = E-TS-ux and S -> 0 when T->0; Phi_lowT -> E-ux = potential_energy
     const SiteExchanger &site_exch = m_site_swaps;
     const ConfigDoF &config_dof = configdof();
     ChargeNeutralGrandCanonicalEvent event = m_event;
