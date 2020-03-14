@@ -37,7 +37,7 @@ class ChargeNeutralGrandCanonical : public MonteCarlo{
     typedef GrandCanonicalSettings SettingsType;
 
 	ChargeNeutralGrandCanonical(PrimClex &primclex, const SettingsType &settings, Log &_log);
-
+  
     /// \brief Return number of steps per pass. Equals number of sites with variable occupation.
     Index steps_per_pass() const;
 
