@@ -16,6 +16,11 @@ export CASM_BUILD_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pw
 . $CASM_BUILD_DIR/build_scripts/install-functions.sh
 detect_os
 
+CASM_CONDA_TOKEN='je-2812f334-8c91-4935-8fda-06a489c0e255'
+CASM_CONDA_ID_USER='jerrydzy'
+CASM_GIT_ID_USER='dengzeyu'
+CASM_BRANCH='coupled_MC'
+CASM_BUILD_BOOST='1'
 # where to pull CASMcode repo from (https://github.com/$GIT_ID_USER/CASMcode)
 check_var "CASM_BRANCH" "Branch to build"
 check_var "CASM_GIT_ID_USER" "Where to pull CASMcode from (https://github.com/\$GIT_ID_USER/CASMcode)"
@@ -24,7 +29,7 @@ check_secret_var "CASM_CONDA_TOKEN" "Token required to upload conda packages"
 check_var "CASM_CONDA_LABEL" "Conda channel label (\"dev\" or \"main\")" "dev"
 check_var "CASM_CONDA_DIR" "Location where conda is installed" "$HOME/.local/conda"
 check_var "CASM_BUILD_BOOST" "If non-zero length, build casm-boost, otherwise build casm-python, casm-cpp, and casm" ""
-check_var "CASM_NCPU" "Compiler -j option" 2
+check_var "CASM_NCPU" "Compiler -j option" 8
 
 if [ "$CASM_OS_NAME" == "osx" ]; then
   CASM_DEFAULT_CONDA_FEATURE="xcode"

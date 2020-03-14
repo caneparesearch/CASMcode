@@ -342,97 +342,113 @@ namespace CASM {
   /// Phi=-kB*T*(-\Omega_0/kBT+ln(SUM(boltz(D\Omega_s))    Sum is over point defects and no defects (in which case D\Omega_s == 0)
   /// Phi=(\Omega_0-kB*T(ln(SUM(boltz(D\Omega_s)))))/N
   ///
-  // double ChargeNeutralGrandCanonical::lte_grand_canonical_free_energy() const {
+  double ChargeNeutralGrandCanonical::lte_grand_canonical_free_energy() const {
 
-  //   const SiteExchanger &site_exch = m_site_swaps;
-  //   const ConfigDoF &config_dof = configdof();
-  //   GrandCanonicalEvent event = m_event;
+    const SiteExchanger &site_exch = m_site_swaps;
+    const ConfigDoF &config_dof = configdof();
+    ChargeNeutralGrandCanonicalEvent event = m_event;
 
-  //   double tol = 1e-12;
+    double tol = 1e-12;
 
-  //   auto less = [&](const double & A, const double & B) {
-  //     return A < B - tol;
-  //   };
+    auto less = [&](const double & A, const double & B) {
+      return A < B - tol;
+    };
 
-  //   std::map<double, unsigned long, decltype(less)> hist(less);
+    std::map<double, unsigned long, decltype(less)> hist(less);
 
-  //   // no defect case
-  //   hist[0.0] = 1;
+    // no defect case
+    hist[0.0] = 1;
 
-  //   // double sum_exp = 0.0;
+    // double sum_exp = 0.0;
 
-  //   //Loop over sites that can change occupants
-  //   for(Index exch_ind = 0; exch_ind < site_exch.variable_sites().size(); exch_ind++) {
+    //Loop over sites that can change occupants
+    int n_Na = 8;
+    for(Index exch_ind_1 = 0; exch_ind_1 < site_exch.variable_sites().size(); exch_ind_1++) {
+      for(Index exch_ind_2 = 0; exch_ind_2 < site_exch.variable_sites().size(); exch_ind_2++) {
+      //Transform exchanger index to ConfigDoF index
+      Index mutating_site_1 = site_exch.variable_sites()[exch_ind_1];
+      int sublat_1 = site_exch.sublat()[exch_ind_1];
+      int current_occupant_1 = config_dof.occ(mutating_site_2);
+      Index mutating_site_2 = site_exch.variable_sites()[exch_ind_2];
+      int sublat_2 = site_exch.sublat()[exch_ind_2];
+      int current_occupant_1 = config_dof.occ(mutating_site_2);
+      // Zeyu: only swap if 1 site is Na/Va and 1 site is Si/P
+      if (((sublat_1 <= n_Na && sublat_2 > n_Na) || (sublat_1 > n_Na && sublat_2 <= n_Na)) && (current_occupant_1 == current_occupant_2)){
+      //Loop over possible occupants for site that can change
+      const auto &possible_1 = site_exch.possible_swap()[sublat_1][current_occupant_1];
+      const auto &possible_2 = site_exch.possible_swap()[sublat_2][current_occupant_2];
+      for(auto new_occ_it_1 = possible_1.begin(); new_occ_it_1 != possible_1.end(); ++new_occ_it_1) {
+        for (auto new_occ_it_2 = possible_2.begin(); new_occ_it_2 != possible_2.end(); ++new_occ_it_2){
+      // Zeyu: create pairs
+        std::pair<Index,Index> mutating_sites (mutating_site_1,mutating_site_2);
+        std::pair<Index,Index> sublats (sublat_1,sublat_2);
+        std::pair<int,int> current_occupants (current_occupant_1,current_occupant_1);
+        std::pair<int,int> new_occupants (new_occupant_1,new_occupant_2);
+        std::pair<int,int> new_occ_its (new_occ_it_1,new_occ_it_2);
 
-  //     //Transform exchanger index to ConfigDoF index
-  //     Index mutating_site = site_exch.variable_sites()[exch_ind];
-  //     int sublat = site_exch.sublat()[exch_ind];
-  //     int current_occupant = config_dof.occ(mutating_site);
+        _update_deltas(event, mutating_sites, sublats, current_occupants, *new_occ_its);
 
-  //     //Loop over possible occupants for site that can change
-  //     const auto &possible = site_exch.possible_swap()[sublat][current_occupant];
-  //     for(auto new_occ_it = possible.begin(); new_occ_it != possible.end(); ++new_occ_it) {
+        //save the result
+        double dpot_nrg = event.dEpot();
+        if(dpot_nrg < 0.0) {
+          Log &err_log = default_err_log();
+          err_log.error<Log::standard>("Calculating low temperature expansion");
+          err_log << "  Defect lowered the potential energy. Your motif configuration "
+                  << "is not the 0K ground state.\n" << std::endl;
+          throw std::runtime_error("Error calculating low temperature expansion. Not in the ground state.");
+        }
+        auto it = hist.find(dpot_nrg);
+        if(it == hist.end()) {
+          hist[dpot_nrg] = 1;
+        }
+        else {
+          it->second++;
+        }
+      }
+      }
+      }
+    }
+    }
+    }
 
-  //       _update_deltas(event, mutating_site, sublat, current_occupant, *new_occ_it);
+    _log().results("Ground state and point defect potential energy details");
+    _log() << "T: " << m_condition.temperature() << std::endl;
+    _log() << "kT: " << 1.0 / m_condition.beta() << std::endl;
+    _log() << "Beta: " << m_condition.beta() << std::endl << std::endl;
 
-  //       //save the result
-  //       double dpot_nrg = event.dEpot();
-  //       if(dpot_nrg < 0.0) {
-  //         Log &err_log = default_err_log();
-  //         err_log.error<Log::standard>("Calculating low temperature expansion");
-  //         err_log << "  Defect lowered the potential energy. Your motif configuration "
-  //                 << "is not the 0K ground state.\n" << std::endl;
-  //         throw std::runtime_error("Error calculating low temperature expansion. Not in the ground state.");
-  //       }
+    _log() << std::setw(16) << "N/unitcell" << " "
+           << std::setw(16) << "dPE" << " "
+           << std::setw(24) << "N*exp(-dPE/kT)" << " "
+           << std::setw(16) << "dphi" << " "
+           << std::setw(16) << "phi" << std::endl;
 
+    double tsum = 0.0;
+    double phi = 0.0;
+    double phi_prev;
+    for(auto it = hist.rbegin(); it != hist.rend(); ++it) {
+      phi_prev = phi;
+      // Zeyu the sum term is double counted since we flip 2 sites everytime to make charge neutral, i.e. we take half of it
+      tsum += it->second * exp(-(it->first) * m_condition.beta())/2;
+      phi = std::log(tsum) / m_condition.beta() / supercell().volume();
 
-  //       auto it = hist.find(dpot_nrg);
-  //       if(it == hist.end()) {
-  //         hist[dpot_nrg] = 1;
-  //       }
-  //       else {
-  //         it->second++;
-  //       }
-  //     }
-  //   }
+      if(almost_equal(it->first, 0.0, tol)) {
+        _log() << std::setw(16) << "(gs)" << " ";
+      }
+      else {
+        _log() << std::setw(16) << std::setprecision(8) << (1.0 * it->second) / supercell().volume() << " ";
+      }
+      _log() << std::setw(16) << std::setprecision(8) << it->first << " "
+             << std::setw(24) << std::setprecision(8) << it->second *exp(-it->first * m_condition.beta()) << " "
+             << std::setw(16) << std::setprecision(8) << phi - phi_prev << " "
+             << std::setw(16) << std::setprecision(8) << potential_energy() - phi << std::endl;
 
-  //   _log().results("Ground state and point defect potential energy details");
-  //   _log() << "T: " << m_condition.temperature() << std::endl;
-  //   _log() << "kT: " << 1.0 / m_condition.beta() << std::endl;
-  //   _log() << "Beta: " << m_condition.beta() << std::endl << std::endl;
+    }
 
-  //   _log() << std::setw(16) << "N/unitcell" << " "
-  //          << std::setw(16) << "dPE" << " "
-  //          << std::setw(24) << "N*exp(-dPE/kT)" << " "
-  //          << std::setw(16) << "dphi" << " "
-  //          << std::setw(16) << "phi" << std::endl;
+    _log() << "phi_LTE(1): " << std::setprecision(12) << potential_energy() - phi << std::endl << std::endl;
 
-  //   double tsum = 0.0;
-  //   double phi = 0.0;
-  //   double phi_prev;
-  //   for(auto it = hist.rbegin(); it != hist.rend(); ++it) {
-  //     phi_prev = phi;
-  //     tsum += it->second * exp(-(it->first) * m_condition.beta());
-  //     phi = std::log(tsum) / m_condition.beta() / supercell().volume();
+    return potential_energy() - phi;
 
-  //     if(almost_equal(it->first, 0.0, tol)) {
-  //       _log() << std::setw(16) << "(gs)" << " ";
-  //     }
-  //     else {
-  //       _log() << std::setw(16) << std::setprecision(8) << (1.0 * it->second) / supercell().volume() << " ";
-  //     }
-  //     _log() << std::setw(16) << std::setprecision(8) << it->first << " "
-  //            << std::setw(24) << std::setprecision(8) << it->second *exp(-it->first * m_condition.beta()) << " "
-  //            << std::setw(16) << std::setprecision(8) << phi - phi_prev << " "
-  //            << std::setw(16) << std::setprecision(8) << potential_energy() - phi << std::endl;
-
-  //   }
-
-  //   _log() << "phi_LTE(1): " << std::setprecision(12) << potential_energy() - phi << std::endl << std::endl;
-
-  //   return potential_energy() - phi;
-
-  // }
+  }
 
 	/// \brief Write results to files
     void ChargeNeutralGrandCanonical::write_results(Index cond_index) const{
