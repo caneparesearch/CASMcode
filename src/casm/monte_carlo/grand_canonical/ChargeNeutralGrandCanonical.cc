@@ -2,9 +2,6 @@
 #include "casm/clex/PrimClex.hh"
 #include "casm/monte_carlo/grand_canonical/ChargeNeutralGrandCanonicalIO.hh"
 #include "casm/monte_carlo/MonteIO_impl.hh"
-#include "casm/clex/ConfigIterator.hh"
-#include "casm/clex/Norm.hh"
-#include "casm/monte_carlo/MonteCarloEnum_impl.hh"
 
 
 namespace CASM {
@@ -380,9 +377,9 @@ namespace CASM {
           //Loop over possible occupants for site that can change
           const auto &possible_1 = site_exch.possible_swap()[sublat_1][current_occupant_1];
           const auto &possible_2 = site_exch.possible_swap()[sublat_2][current_occupant_2];
-          for(auto new_occ_it_1 = possible_1.begin(); new_occ_it_1 != possible_1.end(); ++new_occ_it_1){
+          for(auto new_occ_it_1 = possible_1.begin(); new_occ_it_1 != possible_1.end(); ++new_occ_it_1) {
             for (auto new_occ_it_2 = possible_2.begin(); new_occ_it_2 != possible_2.end(); ++new_occ_it_2){
-            // Zeyu: create pairs
+          // Zeyu: create pairs
               std::pair<Index,Index> mutating_sites (mutating_site_1,mutating_site_2);
               std::pair<Index,Index> sublats (sublat_1,sublat_2);
               std::pair<int,int> current_occupants (current_occupant_1,current_occupant_1);
