@@ -342,7 +342,7 @@ namespace CASM {
   /// Phi=-kB*T*(-\Omega_0/kBT+ln(SUM(boltz(D\Omega_s))    Sum is over point defects and no defects (in which case D\Omega_s == 0)
   /// Phi=(\Omega_0-kB*T(ln(SUM(boltz(D\Omega_s)))))/N
   ///
-  double ChargeNeutralGrandCanonical::lte_grand_canonical_free_energy() {
+  double ChargeNeutralGrandCanonical::lte_grand_canonical_free_energy() const {
 
     const SiteExchanger &site_exch = m_site_swaps;
     const ConfigDoF &config_dof = configdof();
