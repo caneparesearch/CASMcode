@@ -346,7 +346,7 @@ namespace CASM {
 
     const SiteExchanger &site_exch = m_site_swaps;
     const ConfigDoF &config_dof = configdof();
-    ChargeNeutralGrandCanonical event = m_event;
+    ChargeNeutralGrandCanonicalEvent event = m_event;
 
     double tol = 1e-12;
 
@@ -379,19 +379,19 @@ namespace CASM {
           //Loop over possible occupants for site that can change
           const auto &possible_1 = site_exch.possible_swap()[sublat_1][current_occupant_1];
           const auto &possible_2 = site_exch.possible_swap()[sublat_2][current_occupant_2];
-          for(auto new_occ_it_1 = possible.begin(); new_occ_it_1 != possible.end(); ++new_occ_it_1) {
-            for(auto new_occ_it_2 = possible.begin(); new_occ_it_2 != possible.end(); ++new_occ_it_2) {
+          for(auto new_occ_it_1 = possible_1.begin(); new_occ_it_1 != possible_1.end(); ++new_occ_it_1) {
+            for(auto new_occ_it_2 = possible_2.begin(); new_occ_it_2 != possible_2.end(); ++new_occ_it_2) {
 
               // Zeyu: creating pairs
               std::pair<Index,Index> mutating_sites (mutating_site_1,mutating_site_2);
               std::pair<Index,Index> sublats (sublat_1,sublat_2);
               std::pair<int,int> current_occupants (current_occupant_1,current_occupant_1);
-              std::pair<int,int> new_occ_its (new_occupant_1,new_occupant_2);
+              std::pair<int,int> new_occ_its (*new_occ_it_1,*new_occ_it_2);
 
-              _update_deltas(event, mutating_sites, sublats, current_occupants, *new_occ_its);
+              _update_deltas(event, mutating_sites, sublats, current_occupants, new_occ_its);
 
               //save the result
-              double dpot_nrg = event.dEpot()[0]+event.dEpot()[1];
+              double dpot_nrg = event.dEpot().first+event.dEpot().second;
               if(dpot_nrg < 0.0) {
                 Log &err_log = default_err_log();
                 err_log.error<Log::standard>("Calculating low temperature expansion");
