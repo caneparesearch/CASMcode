@@ -389,7 +389,7 @@ namespace CASM {
         _update_deltas(event, mutating_sites, sublats, current_occupants, *new_occ_its);
 
         //save the result
-        double dpot_nrg = event.dEpot();
+        double dpot_nrg = event.dEpot()[0]+event.dEpot()[1];
         if(dpot_nrg < 0.0) {
           Log &err_log = default_err_log();
           err_log.error<Log::standard>("Calculating low temperature expansion");
