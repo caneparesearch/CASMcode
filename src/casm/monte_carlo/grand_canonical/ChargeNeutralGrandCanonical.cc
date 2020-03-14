@@ -374,35 +374,36 @@ namespace CASM {
         int current_occupant_1 = config_dof.occ(mutating_site_2);
         // Zeyu: only swap if 1 site is Na/Va and 1 site is Si/P
         if (((sublat_1 <= n_Na && sublat_2 > n_Na) || (sublat_1 > n_Na && sublat_2 <= n_Na)) && (current_occupant_1 == current_occupant_2)){
-        //Loop over possible occupants for site that can change
-        const auto &possible_1 = site_exch.possible_swap()[sublat_1][current_occupant_1];
-        const auto &possible_2 = site_exch.possible_swap()[sublat_2][current_occupant_2];
-        for(auto new_occ_it_1 = possible_1.begin(); new_occ_it_1 != possible_1.end(); ++new_occ_it_1) {
-          for (auto new_occ_it_2 = possible_2.begin(); new_occ_it_2 != possible_2.end(); ++new_occ_it_2){
-        // Zeyu: create pairs
-            std::pair<Index,Index> mutating_sites (mutating_site_1,mutating_site_2);
-            std::pair<Index,Index> sublats (sublat_1,sublat_2);
-            std::pair<int,int> current_occupants (current_occupant_1,current_occupant_1);
-            std::pair<int,int> new_occupants (new_occupant_1,new_occupant_2);
-            std::pair<int,int> new_occ_its (new_occ_it_1,new_occ_it_2);
+          //Loop over possible occupants for site that can change
+          const auto &possible_1 = site_exch.possible_swap()[sublat_1][current_occupant_1];
+          const auto &possible_2 = site_exch.possible_swap()[sublat_2][current_occupant_2];
+          for(auto new_occ_it_1 = possible_1.begin(); new_occ_it_1 != possible_1.end(); ++new_occ_it_1) {
+            for (auto new_occ_it_2 = possible_2.begin(); new_occ_it_2 != possible_2.end(); ++new_occ_it_2){
+          // Zeyu: create pairs
+              std::pair<Index,Index> mutating_sites (mutating_site_1,mutating_site_2);
+              std::pair<Index,Index> sublats (sublat_1,sublat_2);
+              std::pair<int,int> current_occupants (current_occupant_1,current_occupant_1);
+              std::pair<int,int> new_occupants (new_occupant_1,new_occupant_2);
+              std::pair<int,int> new_occ_its (new_occ_it_1,new_occ_it_2);
 
-            _update_deltas(event, mutating_sites, sublats, current_occupants, *new_occ_its);
+              _update_deltas(event, mutating_sites, sublats, current_occupants, *new_occ_its);
 
-            //save the result
-            double dpot_nrg = event.dEpot()[0]+event.dEpot()[1];
-            if(dpot_nrg < 0.0) {
-              Log &err_log = default_err_log();
-              err_log.error<Log::standard>("Calculating low temperature expansion");
-              err_log << "  Defect lowered the potential energy. Your motif configuration "
-                      << "is not the 0K ground state.\n" << std::endl;
-              throw std::runtime_error("Error calculating low temperature expansion. Not in the ground state.");
-            }
-            auto it = hist.find(dpot_nrg);
-            if(it == hist.end()) {
-              hist[dpot_nrg] = 1;
-            }
-            else {
-              it->second++;
+              //save the result
+              double dpot_nrg = event.dEpot()[0]+event.dEpot()[1];
+              if(dpot_nrg < 0.0) {
+                Log &err_log = default_err_log();
+                err_log.error<Log::standard>("Calculating low temperature expansion");
+                err_log << "  Defect lowered the potential energy. Your motif configuration "
+                        << "is not the 0K ground state.\n" << std::endl;
+                throw std::runtime_error("Error calculating low temperature expansion. Not in the ground state.");
+              }
+              auto it = hist.find(dpot_nrg);
+              if(it == hist.end()) {
+                hist[dpot_nrg] = 1;
+              }
+              else {
+                it->second++;
+              }
             }
           }
         }
