@@ -164,8 +164,11 @@ namespace CASM {
         Index mutating_site_1,mutating_site_2;
         Index sublat_1,sublat_2;
         int current_occupant_1,current_occupant_2;
-	      int n_Na = 8;
-        
+        // Zeyu: comment out for Na3-xSb1-xWxS4
+	      // int n_Na = 3;
+        // Zeyu: for Na3-xSb1-xWxS4, 2 mutations at the same time; 
+        //       pick one Na/Va and one Sb/W with the same occupancy and flip them together
+        //       sublat in prim.json: Sb/W -> 0, Na/Va -> 1-3, S -> 4-7
         // Zeyu: 2 mutations at the same time; pick one Na/Va and one Si/P with the same occupancy and flip them together
         do{
           // Randomly pick a site that's allowed more than one occupant
@@ -183,8 +186,9 @@ namespace CASM {
           current_occupant_1 = configdof().occ(mutating_site_1);
           current_occupant_2 = configdof().occ(mutating_site_2);
         }
-        while (!(((sublat_1 <= n_Na && sublat_2 > n_Na) || (sublat_1 > n_Na && sublat_2 <= n_Na)) && (current_occupant_1 == current_occupant_2)));
-
+        // Zeyu: Modified this below for Na3-xSb1-xWxS4
+        // while (!(((sublat_1 <= n_Na && sublat_2 > n_Na) || (sublat_1 > n_Na && sublat_2 <= n_Na)) && (current_occupant_1 == current_occupant_2)));
+        while (!(((sublat_1 == 0 && sublat_2 > 0) || (sublat_1 > 0 && sublat_2==0)) && (current_occupant_1 == current_occupant_2)));
         // Randomly pick a new occupant for the mutating site
         const std::vector<int> &possible_mutation_1 = m_site_swaps.possible_swap()[sublat_1][current_occupant_1];
         int new_occupant_1 = possible_mutation_1[_mtrand().randInt(possible_mutation_1.size() - 1)];
