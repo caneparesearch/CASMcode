@@ -9,7 +9,12 @@
 #include "casm/monte_carlo/grand_canonical/GrandCanonicalEvent.hh"
 #include "casm/monte_carlo/grand_canonical/GrandCanonicalConditions.hh"
 #include "casm/monte_carlo/grand_canonical/GrandCanonicalSettings.hh"
-
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <map>
+#include <sstream>
+#include <iomanip>
 
 namespace CASM {
 
@@ -112,7 +117,12 @@ namespace CASM {
 
     /// \brief Get potential energy
     double potential_energy(const Configuration &config) const;
+      
+    /// Hengning add here: Return Fvib 
+    boost::math::cubic_b_spline<double> interpolate_vibrational_formation_energy(std::string filename, double desiredT);
 
+    inline void set_vib_formation_energy_T(boost::math::cubic_b_spline<double> vib_formation_energy_T){m_vib_formation_energy_T = vib_formation_energy_T;
+    }
 
   private:
 
@@ -215,12 +225,13 @@ namespace CASM {
     /// \brief Number of atoms of each type, normalized per primitive cell
     Eigen::VectorXd *m_comp_n;
 
+    
+    /// \brief Hengning add here
+    boost::math::cubic_b_spline<double> m_vib_formation_energy_T; 
   };
 
 }
 
 #endif
-
-
 
 
