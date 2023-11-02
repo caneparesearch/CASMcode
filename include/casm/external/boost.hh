@@ -13,7 +13,7 @@
 #include <boost/foreach.hpp>
 #include <boost/math/special_functions/round.hpp>
 #include <boost/math/special_functions/erf.hpp>
-
+#include <boost/math/interpolators/cubic_b_spline.hpp> // Hengning add here
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
