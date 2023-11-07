@@ -124,8 +124,8 @@ namespace CASM {
     inline void set_vib_formation_energy_T(boost::math::cubic_b_spline<double> vib_formation_energy_T){m_vib_formation_energy_T = vib_formation_energy_T;
     }
     
-    inline void set_vib_formation_energy(double vib_formation_energy){m_vib_formation_energy=vib_formation_energy;
-    }
+    // inline void set_vib_formation_energy(double vib_formation_energy){m_vib_formation_energy=vib_formation_energy;
+    // }
 
 
   private:

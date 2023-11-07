@@ -25,6 +25,11 @@ namespace CASM {
 
     // set the SuperNeighborList...
     set_nlist();
+    
+    // Hengning add here
+    double desiredT = m_condition.temperature();
+    std::string filename = "/app/CASM_files/prim_Nb_direction.csv";
+    boost::math::cubic_b_spline<double> set_vib_formation_energy_T(interpolate_vibrational_formation_energy(filename, desiredT));
 
     // If the simulation is big enough, use delta cluster functions;
     // else, calculate all cluster functions
@@ -165,6 +170,58 @@ namespace CASM {
     return;
   }
 
+    // Hengning add here
+    // boost::math::cubic_b_spline<double> interpolate_vibrational_formation_energy(filename, desiredT){
+    // std::ifstream dataFile(filename);
+    // if (!dataFile.is_open()) {
+    //     throw std::runtime_error("Error: Unable to open data file.\n");
+    // }
+
+  // Hengning add here
+  boost::math::cubic_b_spline<double> interpolate_vibrational_formation_energy(const std::string& filename, double desiredT) {
+    std::ifstream dataFile(filename);
+    if (!dataFile.is_open()) {
+        throw std::runtime_error("Error: Unable to open data file.\n");
+    }
+
+    // Map to store F values for each T
+    std::map<double, std::vector<double>> data;
+    std::string line;
+
+    // Extract all T, x, and F data
+    while (std::getline(dataFile, line)) {
+        std::istringstream iss(line);
+        std::string value;
+        double T;
+
+        if (std::getline(iss, value, ',')) {
+            T = std::stod(value);
+            if (std::getline(iss, value, ',')) { // Skip x value
+                if (std::getline(iss, value, ',')) {
+                     data[T].push_back(std::stod(value));
+                }
+            }
+        }
+    }    
+    dataFile.close(); 
+
+    // Create interpolators for each T
+    std::map<double, boost::math::cubic_b_spline<double>> interpolators;
+    for (const auto& [T, F] : data) {
+        interpolators[T] = boost::math::cubic_b_spline<double>(F.begin(), F.end(), 0, 0.25);
+        }
+
+    // Output the interpolated F value for the given T and x
+    if (interpolators.find(desiredT) != interpolators.end()) {
+      boost::math::cubic_b_spline<double> vib_formation_energy_T = interpolators[desiredT];
+      return vib_formation_energy_T;
+    } 
+    else {
+        throw std::runtime_error("Interpolator for current T not found.\n");
+    }
+    return boost::math::cubic_b_spline<double>();
+  }
+
 
   /// \brief Propose a new event, calculate delta properties, and return reference to it
   ///
@@ -186,7 +243,7 @@ namespace CASM {
     // Randomly pick a new occupant for the mutating site
     const std::vector<int> &possible_mutation = m_site_swaps.possible_swap()[sublat][current_occupant];
     int new_occupant = possible_mutation[_mtrand().randInt(possible_mutation.size() - 1)];
-
+       
     if(debug()) {
       const auto &site_occ = primclex().get_prim().basis[sublat].site_occupant();
       _log().custom("Propose event");
@@ -232,7 +289,7 @@ namespace CASM {
   /// \brief Based on a random number, decide if the change in energy from the proposed event is low enough to be accepted.
   bool GrandCanonical::check(const GrandCanonicalEvent &event) {
 
-    if(event.dEpot() < 0.0) {
+    if(event.dEpot()< 0.0) {
 
       if(debug()) {
         _log().custom("Check event");
@@ -502,6 +559,7 @@ namespace CASM {
       _configdof().occ(mutating_site) = current_occupant;
     }
 
+
     if(debug()) {
       _print_correlations(event.dCorr(), "delta correlations", "dCorr", all_correlations);
     }
@@ -553,7 +611,7 @@ namespace CASM {
                                       int new_occupant) const {
 
     // ---- set OccMod --------------
-
+    
     event.occupational_change().set(mutating_site, sublat, new_occupant);
 
     // ---- set dspecies --------------
@@ -565,15 +623,17 @@ namespace CASM {
     Index new_species = m_site_swaps.sublat_to_mol()[sublat][new_occupant];
     event.set_dN(curr_species, -1);
     event.set_dN(new_species, 1);
-
+    // auto current_param_composition_x = primclex().composition_axes().param_composition(CASM::comp_n(config));
+    event.set_vib_formation_energy((GrandCanonical::vib_formation_energy_T())(comp_x));
 
     // ---- set dcorr --------------
 
     _set_dCorr(event, mutating_site, sublat, current_occupant, new_occupant, m_use_deltas, m_all_correlations);
 
     // ---- set dformation_energy --------------
+    // Hengning add vib_formation energy here
 
-    event.set_dEf(_eci() * event.dCorr().data());
+    event.set_dEf(_eci() * event.dCorr().data()+event.vib_formation_energy()); 
 
 
     // ---- set dpotential_energy --------------

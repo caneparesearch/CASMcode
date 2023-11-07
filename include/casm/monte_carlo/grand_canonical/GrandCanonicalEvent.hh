@@ -32,10 +32,13 @@ namespace CASM {
     
     /// \brief Hengning add F_vib energy here
   inline void set_vib_formation_energy_T(boost::math::cubic_b_spline<double> vib_formation_energy_T);
-
   inline boost::math::cubic_b_spline<double> vib_formation_energy_T();
-  inline void set_vib_formation_energy(double vib_formation_energy);
-  inline double vib_formation_energy();
+  inline void set_vib_formation_energy(double vib_formation_energy){
+    m_vib_formation_energy=vib_formation_energy;
+    }
+  inline double vib_formation_energy(){
+    return  m_vib_formation_energy;
+    }
 
     /// \brief Return change in (extensive) formation energy associated with this event
     double dEf() const;
@@ -58,6 +61,10 @@ namespace CASM {
 
     /// \brief Return change in (extensive) potential energy, dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
     double dEpot() const;
+
+    // /// Hengning add here
+    // boost::math::cubic_b_spline<double> m_vib_formation_energy_T;
+    // double m_vib_formation_energy;
 
     /// \brief Access the changes in (extensive) correlations associated with this event
     Eigen::VectorXd &dCorr();
@@ -87,7 +94,7 @@ namespace CASM {
     /// Hengning add here
     boost::math::cubic_b_spline<double> m_vib_formation_energy_T;
     double m_vib_formation_energy;
-
+ 
     /// \brief Change in number of each species in supercell due to this event.
     ///        The order is determined by primclex.get_param_comp().get_components()
     Eigen::VectorXl m_dN;
@@ -126,12 +133,12 @@ namespace CASM {
   inline boost::math::cubic_b_spline<double> GrandCanonicalEvent::vib_formation_energy_T(){
       return  m_vib_formation_energy_T;
     }
-  inline void GrandCanonicalEvent::set_vib_formation_energy(double vib_formation_energy){
-      m_vib_formation_energy=vib_formation_energy;
-    }
-  inline double vib_formation_energy(){
-    return  m_vib_formation_energy;
-    }
+  // inline void GrandCanonicalEvent::set_vib_formation_energy(double vib_formation_energy){
+  //     m_vib_formation_energy=vib_formation_energy;
+  //   }
+  // inline double vib_formation_energy(){
+  //   return  m_vib_formation_energy;
+  //   }
   
   /// \brief Access change in number of all species (extensive). Order as in CompositionConverter::components().
   inline Eigen::VectorXl &GrandCanonicalEvent::dN() {
