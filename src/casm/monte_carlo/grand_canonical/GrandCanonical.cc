@@ -26,9 +26,9 @@ namespace CASM {
     // set the SuperNeighborList...
     set_nlist();
     
-    // Hengning add here
+    // Hengning add here, in prim_Nb_direction, vib_formation_energies of ground-state structures are provided, in 4 formula units, same as prim.cif
     double desiredT = m_condition.temperature();
-    std::string filename = "/app/CASM_files/prim_Nb_direction.csv";
+    std::string filename = "/userhome1/hengning/CASMcode/prim_Nb_direction.csv";
     boost::math::cubic_b_spline<double> set_vib_formation_energy_T(interpolate_vibrational_formation_energy(filename, desiredT));
 
     // If the simulation is big enough, use delta cluster functions;
@@ -211,7 +211,7 @@ namespace CASM {
         interpolators[T] = boost::math::cubic_b_spline<double>(F.begin(), F.end(), 0, 0.25);
         }
 
-    // Output the interpolated F value for the given T and x
+    // Output the interpolated F(x) vectors at given T
     if (interpolators.find(desiredT) != interpolators.end()) {
       boost::math::cubic_b_spline<double> vib_formation_energy_T = interpolators[desiredT];
       return vib_formation_energy_T;
@@ -277,7 +277,8 @@ namespace CASM {
              << "    param_chem_pot.transpose() * dx_dn * dN: " << param_chem_pot.transpose()*Mpinv *m_event.dN().cast<double>() << "\n"
              << "  d(Nunit * param_chem_pot * x): " << exchange_chem_pot(new_species, curr_species) << "\n"
              << "  d(Ef): " << m_event.dEf() << "\n"
-             << "  d(Epot): " << m_event.dEf() - exchange_chem_pot(new_species, curr_species) << "\n"
+             << "  d(Fvib): " << m_event.dFvib() << "\n"
+             << "  d(Epot): " << m_event.dEf() + m_event.dFvib() -  exchange_chem_pot(new_species, curr_species) << "\n"
              << std::endl;
 
 
@@ -328,6 +329,7 @@ namespace CASM {
 
     // Next update all properties that changed from the event
     _formation_energy() += event.dEf() / supercell().volume();
+    _vib_formation_energy() += event.dFvib() / supercell().volume();
     _potential_energy() += event.dEpot() / supercell().volume();
     _corr() += event.dCorr() / supercell().volume();
     _comp_n() += event.dN().cast<double>() / supercell().volume();
@@ -482,7 +484,9 @@ namespace CASM {
     auto corr = correlations(config, _clexulator());
     double formation_energy = _eci() * corr.data();
     auto comp_x = primclex().composition_axes().param_composition(CASM::comp_n(config));
-    return formation_energy - comp_x.dot(m_condition.param_chem_pot());
+    // Hengning add here, potential energy = Eform(config)+Fform(vib)-\mu*x
+    double vib_formation_energy = set_vib_formation_energy_T(comp_x);
+    return formation_energy + vib_formation_energy - comp_x.dot(m_condition.param_chem_pot());
   }
 
   /// \brief Calculate delta correlations for an event
@@ -623,22 +627,23 @@ namespace CASM {
     Index new_species = m_site_swaps.sublat_to_mol()[sublat][new_occupant];
     event.set_dN(curr_species, -1);
     event.set_dN(new_species, 1);
-    // auto current_param_composition_x = primclex().composition_axes().param_composition(CASM::comp_n(config));
-    event.set_vib_formation_energy((GrandCanonical::vib_formation_energy_T())(comp_x));
+    //event.set_vib_formation_energy((GrandCanonical::vib_formation_energy_T())(comp_x));
 
     // ---- set dcorr --------------
 
     _set_dCorr(event, mutating_site, sublat, current_occupant, new_occupant, m_use_deltas, m_all_correlations);
 
     // ---- set dformation_energy --------------
+
+    event.set_dEf(_eci() * event.dCorr().data()); 
+
     // Hengning add vib_formation energy here
-
-    event.set_dEf(_eci() * event.dCorr().data()+event.vib_formation_energy()); 
-
-
+    // vib_formation_energy(after.comp_x) - vib_formation_energy(before.comp_x)
+    event.set_dFvib();
+ 
     // ---- set dpotential_energy --------------
 
-    event.set_dEpot(event.dEf() - m_condition.exchange_chem_pot(new_species, curr_species));
+    event.set_dEpot(event.dEf() + event.set_dFvib() - m_condition.exchange_chem_pot(new_species, curr_species));
 
   }
 
@@ -654,8 +659,12 @@ namespace CASM {
 
     _scalar_properties()["formation_energy"] = _eci() * corr().data();
     m_formation_energy = &_scalar_property("formation_energy");
+    
+    // Hengning add here for vib_formation_energy
+    _scalar_properties()["vib_formation_energy"] = vib_formation_energy_T();
+    m_formation_energy = &_scalar_property("vib_formation_energy");
 
-    _scalar_properties()["potential_energy"] = formation_energy() - primclex().composition_axes().param_composition(comp_n()).dot(m_condition.param_chem_pot());
+    _scalar_properties()["potential_energy"] = formation_energy() + vib_formation_energy() - primclex().composition_axes().param_composition(comp_n()).dot(m_condition.param_chem_pot());
     m_potential_energy = &_scalar_property("potential_energy");
 
     if(debug()) {
@@ -684,7 +693,8 @@ namespace CASM {
              << "param_chem_pot: " << param_chem_pot.transpose() << "\n"
              << "  param_chem_pot*comp_x: " << param_chem_pot.dot(comp_x)  << "\n"
              << "formation_energy: " << formation_energy() << "\n"
-             << "  formation_energy - param_chem_pot*comp_x: " << formation_energy() - param_chem_pot.dot(comp_x) << "\n"
+             << "vib_formation_energy: " << vib_formation_energy() << "\n"
+             << "formation_energy + vib_formation_energy - param_chem_pot*comp_x: " << formation_energy() + vib_formation_energy() - param_chem_pot.dot(comp_x) << "\n"
              << "potential_energy: " << potential_energy() << "\n" << std::endl;
     }
 

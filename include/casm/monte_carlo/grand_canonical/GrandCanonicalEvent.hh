@@ -30,13 +30,13 @@ namespace CASM {
     /// \brief Set the change in (extensive) formation energy associated with this event
     void set_dEf(double dE);
     
-    /// \brief Hengning add F_vib energy here
-  inline void set_vib_formation_energy_T(boost::math::cubic_b_spline<double> vib_formation_energy_T);
-  inline boost::math::cubic_b_spline<double> vib_formation_energy_T();
-  inline void set_vib_formation_energy(double vib_formation_energy){
+    /// \brief Hengning add F_vib energy here, set_vib_formation_energy_T: member function of GrandcanonicalEvent
+    inline void set_vib_formation_energy_T(boost::math::cubic_b_spline<double> vib_formation_energy_T);
+    inline boost::math::cubic_b_spline<double> vib_formation_energy_T();
+    inline void set_vib_formation_energy(double vib_formation_energy){
     m_vib_formation_energy=vib_formation_energy;
     }
-  inline double vib_formation_energy(){
+    inline double vib_formation_energy(){
     return  m_vib_formation_energy;
     }
 
