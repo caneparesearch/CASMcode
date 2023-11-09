@@ -100,6 +100,11 @@ namespace CASM {
       return *m_formation_energy;
     }
 
+    /// \brief Hengning add here. Vibrational formation energy, normalized per primitive cell
+    const double &vib_formation_energy() const {
+      return *m_vib_formation_energy;
+    }
+
     /// \brief Potential energy, normalized per primitive cell
     const double &potential_energy() const {
       return *m_potential_energy;
@@ -118,21 +123,22 @@ namespace CASM {
     /// \brief Get potential energy
     double potential_energy(const Configuration &config) const;
       
-    /// Hengning add here: Return Fvib 
-    boost::math::cubic_b_spline<double> interpolate_vibrational_formation_energy(std::string filename, double desiredT);
-
-    inline void set_vib_formation_energy_T(boost::math::cubic_b_spline<double> vib_formation_energy_T){m_vib_formation_energy_T = vib_formation_energy_T;
+    /// \brief Hengning add here. Get interpolated function Fvib(x) and values of Fvib
+    boost::math::cubic_b_spline<double> interpolate_vib_formation_energy(const std::string& filename, double desiredT);
+    inline void set_vib_formation_energy_T(boost::math::cubic_b_spline<double> vib_formation_energy_T){
+    m_vib_formation_energy_T = vib_formation_energy_T;
     }
-    
-    // inline void set_vib_formation_energy(double vib_formation_energy){m_vib_formation_energy=vib_formation_energy;
-    // }
-
 
   private:
 
     /// \brief Formation energy, normalized per primitive cell
     double &_formation_energy() {
       return *m_formation_energy;
+    }
+
+    /// \brief Formation energy, normalized per primitive cell
+    double &_vib_formation_energy() {
+      return *m_vib_formation_energy;
     }
 
     /// \brief Potential energy, normalized per primitive cell
@@ -219,6 +225,9 @@ namespace CASM {
 
     /// \brief Formation energy, normalized per primitive cell
     double *m_formation_energy;
+    
+    /// \brief Vibrationl formation energy, normalized per primitive cell
+    double *m_vib_formation_energy;
 
     /// \brief Potential energy, normalized per primitive cell
     double *m_potential_energy;
@@ -229,7 +238,6 @@ namespace CASM {
     /// \brief Number of atoms of each type, normalized per primitive cell
     Eigen::VectorXd *m_comp_n;
 
-    
     /// \brief Hengning add here
     boost::math::cubic_b_spline<double> m_vib_formation_energy_T; 
   };

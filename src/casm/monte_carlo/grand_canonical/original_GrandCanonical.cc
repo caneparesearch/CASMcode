@@ -14,7 +14,7 @@ namespace CASM {
   /// \brief Constructs a GrandCanonical object and prepares it for running based on MonteSettings
   ///
   /// - Does not set 'state': conditions or ConfigDoF
-    GrandCanonical::GrandCanonical(PrimClex &primclex, const GrandCanonicalSettings &settings, Log &log):
+  GrandCanonical::GrandCanonical(PrimClex &primclex, const GrandCanonicalSettings &settings, Log &log):
     MonteCarlo(primclex, settings, log),
     m_site_swaps(supercell()),
     m_formation_energy_clex(primclex, settings.formation_energy(primclex)),
@@ -25,11 +25,6 @@ namespace CASM {
 
     // set the SuperNeighborList...
     set_nlist();
-    
-    // Hengning add here, in prim_Nb_direction, vib_formation_energies of ground-state structures are provided, in 4 formula units, same as prim.cif
-    double desiredT = m_condition.temperature();
-    std::string filename = "/userhome1/hengning/CASMcode/prim_Nb_direction.csv";
-    boost::math::cubic_b_spline<double> set_vib_formation_energy_T(interpolate_vib_formation_energy(filename, desiredT));
 
     // If the simulation is big enough, use delta cluster functions;
     // else, calculate all cluster functions
@@ -170,52 +165,6 @@ namespace CASM {
     return;
   }
 
-  // Hengning add here
-  boost::math::cubic_b_spline<double> GrandCanonical::interpolate_vib_formation_energy(const std::string& filename, double desiredT) {
-    std::ifstream dataFile(filename);
-    if (!dataFile.is_open()) {
-        throw std::runtime_error("Error: Unable to open data file.\n");
-    }
-
-    // Map to store F values for each T
-    std::map<double, std::vector<double>> data;
-    std::string line;
-
-    // Extract all T, x, and F data
-    while (std::getline(dataFile, line)) {
-        std::istringstream iss(line);
-        std::string value;
-        double T;
-
-        if (std::getline(iss, value, ',')) {
-            T = std::stod(value);
-            if (std::getline(iss, value, ',')) { // Skip x value
-                if (std::getline(iss, value, ',')) {
-                     data[T].push_back(std::stod(value));
-                }
-            }
-        }
-    }    
-    dataFile.close(); 
-
-    // Create interpolators for each T
-    std::map<double, boost::math::cubic_b_spline<double>> interpolators;
-    for (const auto& [T, F] : data) {
-        interpolators[T] = boost::math::cubic_b_spline<double>(F.begin(), F.end(), 0, 0.25);
-        }
-
-    // Output the interpolated F(x) vectors at given T
-    if (interpolators.find(desiredT) != interpolators.end()) {
-      boost::math::cubic_b_spline<double> vib_formation_energy_T = interpolators[desiredT];
-      m_vib_formation_energy_T = vib_formation_energy_T;
-      return m_vib_formation_energy_T;
-    } 
-    else {
-        throw std::runtime_error("Interpolator for current T not found.\n");
-    }
-  }
-  
-
 
   /// \brief Propose a new event, calculate delta properties, and return reference to it
   ///
@@ -237,7 +186,7 @@ namespace CASM {
     // Randomly pick a new occupant for the mutating site
     const std::vector<int> &possible_mutation = m_site_swaps.possible_swap()[sublat][current_occupant];
     int new_occupant = possible_mutation[_mtrand().randInt(possible_mutation.size() - 1)];
-       
+
     if(debug()) {
       const auto &site_occ = primclex().get_prim().basis[sublat].site_occupant();
       _log().custom("Propose event");
@@ -271,9 +220,7 @@ namespace CASM {
              << "    param_chem_pot.transpose() * dx_dn * dN: " << param_chem_pot.transpose()*Mpinv *m_event.dN().cast<double>() << "\n"
              << "  d(Nunit * param_chem_pot * x): " << exchange_chem_pot(new_species, curr_species) << "\n"
              << "  d(Ef): " << m_event.dEf() << "\n"
-            //  << "  d(Fvib): " << m_event.dFvib() << "\n"
-            //  << "  d(Epot): " << m_event.dEf() + m_event.dFvib() -  exchange_chem_pot(new_species, curr_species) << "\n"
-            << "  d(Epot): " << m_event.dEf() -  exchange_chem_pot(new_species, curr_species) << "\n"
+             << "  d(Epot): " << m_event.dEf() - exchange_chem_pot(new_species, curr_species) << "\n"
              << std::endl;
 
 
@@ -285,7 +232,7 @@ namespace CASM {
   /// \brief Based on a random number, decide if the change in energy from the proposed event is low enough to be accepted.
   bool GrandCanonical::check(const GrandCanonicalEvent &event) {
 
-    if(event.dEpot()< 0.0) {
+    if(event.dEpot() < 0.0) {
 
       if(debug()) {
         _log().custom("Check event");
@@ -324,7 +271,6 @@ namespace CASM {
 
     // Next update all properties that changed from the event
     _formation_energy() += event.dEf() / supercell().volume();
-    // _vib_formation_energy() += event.dFvib() / supercell().volume();
     _potential_energy() += event.dEpot() / supercell().volume();
     _corr() += event.dCorr() / supercell().volume();
     _comp_n() += event.dN().cast<double>() / supercell().volume();
@@ -479,10 +425,6 @@ namespace CASM {
     auto corr = correlations(config, _clexulator());
     double formation_energy = _eci() * corr.data();
     auto comp_x = primclex().composition_axes().param_composition(CASM::comp_n(config));
-    //Hengning add for test
-    std::cout << "comp_x: " << comp_x << std::endl;
-    // Hengning add here, potential energy = Eform(config)+Fform(vib)-\mu*x
-    // double vib_formation_energy = m_vib_formation_energy_T(formation_energy);
     return formation_energy - comp_x.dot(m_condition.param_chem_pot());
   }
 
@@ -560,7 +502,6 @@ namespace CASM {
       _configdof().occ(mutating_site) = current_occupant;
     }
 
-
     if(debug()) {
       _print_correlations(event.dCorr(), "delta correlations", "dCorr", all_correlations);
     }
@@ -612,7 +553,7 @@ namespace CASM {
                                       int new_occupant) const {
 
     // ---- set OccMod --------------
-    
+
     event.occupational_change().set(mutating_site, sublat, new_occupant);
 
     // ---- set dspecies --------------
@@ -624,7 +565,7 @@ namespace CASM {
     Index new_species = m_site_swaps.sublat_to_mol()[sublat][new_occupant];
     event.set_dN(curr_species, -1);
     event.set_dN(new_species, 1);
-    //event.set_vib_formation_energy((GrandCanonical::vib_formation_energy_T())(comp_x));
+
 
     // ---- set dcorr --------------
 
@@ -632,12 +573,9 @@ namespace CASM {
 
     // ---- set dformation_energy --------------
 
-    event.set_dEf(_eci() * event.dCorr().data()); 
+    event.set_dEf(_eci() * event.dCorr().data());
 
-    // Hengning add vib_formation energy here
-    // vib_formation_energy(after.comp_x) - vib_formation_energy(before.comp_x)
-    //event.set_dFvib();
- 
+
     // ---- set dpotential_energy --------------
 
     event.set_dEpot(event.dEf() - m_condition.exchange_chem_pot(new_species, curr_species));
@@ -656,10 +594,6 @@ namespace CASM {
 
     _scalar_properties()["formation_energy"] = _eci() * corr().data();
     m_formation_energy = &_scalar_property("formation_energy");
-    
-    // // Hengning add here for vib_formation_energy
-    // _scalar_properties()["vib_formation_energy"] = vib_formation_energy();
-    // m_vib_formation_energy = &_scalar_property("vib_formation_energy");
 
     _scalar_properties()["potential_energy"] = formation_energy() - primclex().composition_axes().param_composition(comp_n()).dot(m_condition.param_chem_pot());
     m_potential_energy = &_scalar_property("potential_energy");
@@ -688,11 +622,9 @@ namespace CASM {
              << "comp_n: " << comp_n().transpose() << "\n"
              << "comp_x: " << comp_x.transpose() << "\n"
              << "param_chem_pot: " << param_chem_pot.transpose() << "\n"
-             << "param_chem_pot*comp_x: " << param_chem_pot.dot(comp_x)  << "\n"
+             << "  param_chem_pot*comp_x: " << param_chem_pot.dot(comp_x)  << "\n"
              << "formation_energy: " << formation_energy() << "\n"
-            //  << "vib_formation_energy: " << vib_formation_energy() << "\n"
-            //  << "formation_energy + vib_formation_energy - param_chem_pot*comp_x: " << formation_energy() + vib_formation_energy() - param_chem_pot.dot(comp_x) << "\n"
-            << "formation_energy - param_chem_pot*comp_x: " << formation_energy() - param_chem_pot.dot(comp_x) << "\n"
+             << "  formation_energy - param_chem_pot*comp_x: " << formation_energy() - param_chem_pot.dot(comp_x) << "\n"
              << "potential_energy: " << potential_energy() << "\n" << std::endl;
     }
 
