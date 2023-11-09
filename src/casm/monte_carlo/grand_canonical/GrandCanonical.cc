@@ -271,9 +271,8 @@ namespace CASM {
              << "    param_chem_pot.transpose() * dx_dn * dN: " << param_chem_pot.transpose()*Mpinv *m_event.dN().cast<double>() << "\n"
              << "  d(Nunit * param_chem_pot * x): " << exchange_chem_pot(new_species, curr_species) << "\n"
              << "  d(Ef): " << m_event.dEf() << "\n"
-            //  << "  d(Fvib): " << m_event.dFvib() << "\n"
-            //  << "  d(Epot): " << m_event.dEf() + m_event.dFvib() -  exchange_chem_pot(new_species, curr_species) << "\n"
-            << "  d(Epot): " << m_event.dEf() -  exchange_chem_pot(new_species, curr_species) << "\n"
+             << "  d(Fvib): " << m_event.dFvib() << "\n"
+             << "  d(Epot): " << m_event.dEf() + m_event.dFvib() -  exchange_chem_pot(new_species, curr_species) << "\n"
              << std::endl;
 
 
@@ -324,7 +323,7 @@ namespace CASM {
 
     // Next update all properties that changed from the event
     _formation_energy() += event.dEf() / supercell().volume();
-    // _vib_formation_energy() += event.dFvib() / supercell().volume();
+    _vib_formation_energy() += event.dFvib() / supercell().volume();
     _potential_energy() += event.dEpot() / supercell().volume();
     _corr() += event.dCorr() / supercell().volume();
     _comp_n() += event.dN().cast<double>() / supercell().volume();
@@ -482,7 +481,7 @@ namespace CASM {
     //Hengning add for test
     std::cout << "comp_x: " << comp_x << std::endl;
     // Hengning add here, potential energy = Eform(config)+Fform(vib)-\mu*x
-    // double vib_formation_energy = m_vib_formation_energy_T(formation_energy);
+    double vib_formation_energy = m_vib_formation_energy_T(formation_energy);
     return formation_energy - comp_x.dot(m_condition.param_chem_pot());
   }
 
@@ -624,7 +623,6 @@ namespace CASM {
     Index new_species = m_site_swaps.sublat_to_mol()[sublat][new_occupant];
     event.set_dN(curr_species, -1);
     event.set_dN(new_species, 1);
-    //event.set_vib_formation_energy((GrandCanonical::vib_formation_energy_T())(comp_x));
 
     // ---- set dcorr --------------
 
@@ -634,9 +632,9 @@ namespace CASM {
 
     event.set_dEf(_eci() * event.dCorr().data()); 
 
-    // Hengning add vib_formation energy here
-    // vib_formation_energy(after.comp_x) - vib_formation_energy(before.comp_x)
-    //event.set_dFvib();
+    // Hengning add here
+    // plan to get vib_formation_energy(after.comp_x) - vib_formation_energy(before.comp_x), but cannot find concentration x value
+    event.set_dFvib();
  
     // ---- set dpotential_energy --------------
 
@@ -657,9 +655,9 @@ namespace CASM {
     _scalar_properties()["formation_energy"] = _eci() * corr().data();
     m_formation_energy = &_scalar_property("formation_energy");
     
-    // // Hengning add here for vib_formation_energy
-    // _scalar_properties()["vib_formation_energy"] = vib_formation_energy();
-    // m_vib_formation_energy = &_scalar_property("vib_formation_energy");
+    // Hengning add here for vib_formation_energy
+    _scalar_properties()["vib_formation_energy"] = vib_formation_energy();
+    m_vib_formation_energy = &_scalar_property("vib_formation_energy");
 
     _scalar_properties()["potential_energy"] = formation_energy() - primclex().composition_axes().param_composition(comp_n()).dot(m_condition.param_chem_pot());
     m_potential_energy = &_scalar_property("potential_energy");
@@ -690,9 +688,8 @@ namespace CASM {
              << "param_chem_pot: " << param_chem_pot.transpose() << "\n"
              << "param_chem_pot*comp_x: " << param_chem_pot.dot(comp_x)  << "\n"
              << "formation_energy: " << formation_energy() << "\n"
-            //  << "vib_formation_energy: " << vib_formation_energy() << "\n"
-            //  << "formation_energy + vib_formation_energy - param_chem_pot*comp_x: " << formation_energy() + vib_formation_energy() - param_chem_pot.dot(comp_x) << "\n"
-            << "formation_energy - param_chem_pot*comp_x: " << formation_energy() - param_chem_pot.dot(comp_x) << "\n"
+             << "vib_formation_energy: " << vib_formation_energy() << "\n"
+             << "formation_energy + vib_formation_energy - param_chem_pot*comp_x: " << formation_energy() + vib_formation_energy() - param_chem_pot.dot(comp_x) << "\n"
              << "potential_energy: " << potential_energy() << "\n" << std::endl;
     }
 
