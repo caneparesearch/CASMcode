@@ -479,9 +479,9 @@ namespace CASM {
     double formation_energy = _eci() * corr.data();
     auto comp_x = primclex().composition_axes().param_composition(CASM::comp_n(config));
     //Hengning add for test
-    std::cout << "comp_x: " << comp_x << std::endl;
+    //std::cout << "comp_x: " << comp_x << std::endl;
     // Hengning add here, potential energy = Eform(config)+Fform(vib)-\mu*x
-    double vib_formation_energy = m_vib_formation_energy_T(formation_energy);
+    double vib_formation_energy = m_vib_formation_energy_T(comp_x);
     return formation_energy - comp_x.dot(m_condition.param_chem_pot());
   }
 
