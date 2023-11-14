@@ -33,22 +33,33 @@ namespace CASM {
     /// \brief Return change in (extensive) formation energy associated with this event
     double dEf() const;
 
-    
-    // /// \brief Hengning add F_vib energy here, set_vib_formation_energy_T: member function of GrandcanonicalEvent, vib_formation_energy_T: member function of GrandcanonicalEvent and return object but not values, m_vib_formation_energy_T: member variable and stores values, m_vib_formation_energy: double type of member variable, values of vib_formation_energy at specific x and T.
-    // inline void set_vib_formation_energy_T(boost::math::cubic_b_spline<double> vib_formation_energy_T);
-    // inline boost::math::cubic_b_spline<double> vib_formation_energy_T();
-
     // inline void set_vib_formation_energy(double vib_formation_energy){
     // m_vib_formation_energy=vib_formation_energy;
     // }
     // inline double vib_formation_energy();
-    // //{return m_vib_formation_energy;
+    //{return m_vib_formation_energy;
 
     /// \brief Set the change in (extensive) vibrational formation energy associated with this event
     void set_dFvib(double dFvib);
 
     /// \brief Return change in (extensive) vibrational formation energy associated with this event
     double dFvib() const;
+
+    std::pair<double,double> Fvibs() {
+      return m_Fvibs;
+    }
+    void set_Fvibs(std::pair<double,double> Fvibs){
+      m_Fvibs = Fvibs;
+    }
+
+    std::pair<double,double> comp_x_vib() {
+      return m_comp_x_vib;
+    }
+
+    inline void set_comp_x_vib(double current_comp_x,double after_comp_x){
+      m_comp_x_vib = {current_comp_x,after_comp_x};
+    }
+
 
     /// \brief Access change in number of species per supercell. Order as in CompositionConverter::components().
     Eigen::VectorXl &dN();
@@ -101,10 +112,13 @@ namespace CASM {
     /// \brief Change in (extensive) potential energy, dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
     double m_dEpot;
 
-    // /// Hengning add here
-    // boost::math::cubic_b_spline<double> m_vib_formation_energy_T;
-    // double m_vib_formation_energy;
- 
+    std::pair<double,double> m_comp_x_vib;
+    std::pair<double,double> m_Fvibs;
+
+    /// Hengning add here
+    // std::pair<double,double> Fvibs;
+    // std::pair<double,double> comp_x_vib;
+
     /// \brief Change in number of each species in supercell due to this event.
     ///        The order is determined by primclex.get_param_comp().get_components()
     Eigen::VectorXl m_dN;
@@ -143,12 +157,12 @@ namespace CASM {
   // inline boost::math::cubic_b_spline<double> GrandCanonicalEvent::vib_formation_energy_T(){
   //     return  m_vib_formation_energy_T;
   //   }
-  // // inline void GrandCanonicalEvent::set_vib_formation_energy(double vib_formation_energy){
-  // //     m_vib_formation_energy=vib_formation_energy;
-  // //   }
-  // // inline double vib_formation_energy(){
-  // //   return  m_vib_formation_energy;
-  // //   }
+  // inline void GrandCanonicalEvent::set_vib_formation_energy(double vib_formation_energy){
+  //     m_vib_formation_energy=vib_formation_energy;
+  //   }
+  // inline double vib_formation_energy(){
+  //   return  m_vib_formation_energy;
+  //   }
 
     /// \brief Set the change in total vibrational (formation) energy associated with this event
   inline void GrandCanonicalEvent::set_dFvib(double dFvib) {

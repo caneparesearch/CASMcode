@@ -124,10 +124,21 @@ namespace CASM {
     double potential_energy(const Configuration &config) const;
       
     /// \brief Hengning add here. Get interpolated function Fvib(x) and values of Fvib
-    boost::math::cubic_b_spline<double> interpolate_vib_formation_energy(const std::string& filename, double desiredT);
+    void interpolate_vib_formation_energy(const std::string& filename, double desiredT);
+
     inline void set_vib_formation_energy_T(boost::math::cubic_b_spline<double> vib_formation_energy_T){
     m_vib_formation_energy_T = vib_formation_energy_T;
     }
+    boost::math::cubic_b_spline<double> m_vib_formation_energy_T; 
+
+    // /// \brief Hengning add F_vib energy here, set_vib_formation_energy_T: member function of GrandcanonicalEvent, vib_formation_energy_T: member function of GrandcanonicalEvent and return object but not values, m_vib_formation_energy_T: member variable and stores values, m_vib_formation_energy: double type of member variable, values of vib_formation_energy at specific x and T.
+    // inline void set_vib_formation_energy_T(boost::math::cubic_b_spline<double> vib_formation_energy_T);
+    
+    boost::math::cubic_b_spline<double> vib_formation_energy_T(){
+      return m_vib_formation_energy_T;
+    }
+
+
 
   private:
 
@@ -179,7 +190,7 @@ namespace CASM {
                              std::string colheader,
                              bool all_correlations) const;
 
-    /// \brief Calculate delta properties for an event and update the event with those propertiesb
+    /// \brief Calculate delta properties for an event and update the event with those properties
     void _update_deltas(GrandCanonicalEvent &event,
                         Index mutating_site,
                         int sublat,
@@ -239,7 +250,7 @@ namespace CASM {
     Eigen::VectorXd *m_comp_n;
 
     /// \brief Hengning add here
-    boost::math::cubic_b_spline<double> m_vib_formation_energy_T; 
+    // boost::math::cubic_b_spline<double> m_vib_formation_energy_T; 
   };
 
 }
