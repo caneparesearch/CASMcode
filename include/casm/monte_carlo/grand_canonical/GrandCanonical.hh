@@ -179,7 +179,7 @@ namespace CASM {
                              std::string colheader,
                              bool all_correlations) const;
 
-    /// \brief Calculate delta properties for an event and update the event with those properties
+    /// \brief Calculate delta properties for an event and update the event with those propertiesb
     void _update_deltas(GrandCanonicalEvent &event,
                         Index mutating_site,
                         int sublat,

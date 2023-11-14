@@ -480,9 +480,10 @@ namespace CASM {
     auto comp_x = primclex().composition_axes().param_composition(CASM::comp_n(config));
     //Hengning add for test
     //std::cout << "comp_x: " << comp_x << std::endl;
-    // Hengning add here, potential energy = Eform(config)+Fform(vib)-\mu*x
-    double vib_formation_energy = m_vib_formation_energy_T(comp_x);
-    return formation_energy - comp_x.dot(m_condition.param_chem_pot());
+    //comp_n(config) follows order of Li, Nb, O, Ta
+    //Hengning add here, potential energy = Eform(config)+Fform(vib)-\mu*x. comp_x and param_chem_pot are both vectors, need to extract Nb-related information for Fvib
+    double vib_formation_energy = m_vib_formation_energy_T(comp_x[1]);
+    return formation_energy + vib_formation_energy - comp_x.dot(m_condition.param_chem_pot());
   }
 
   /// \brief Calculate delta correlations for an event
@@ -624,6 +625,10 @@ namespace CASM {
     event.set_dN(curr_species, -1);
     event.set_dN(new_species, 1);
 
+    // Hengning add here ---- set comp_x after and before the event -----------
+    auto comp_x=primclex().composition_axes().param_composition(comp_n());
+    auto comp_x_after=primclex().composition_axes().param_composition(comp_n()+event.dN().cast<double>() / supercell().volume());
+
     // ---- set dcorr --------------
 
     _set_dCorr(event, mutating_site, sublat, current_occupant, new_occupant, m_use_deltas, m_all_correlations);
@@ -633,12 +638,12 @@ namespace CASM {
     event.set_dEf(_eci() * event.dCorr().data()); 
 
     // Hengning add here
-    // plan to get vib_formation_energy(after.comp_x) - vib_formation_energy(before.comp_x), but cannot find concentration x value
-    event.set_dFvib();
+    // plan to get vib_formation_energy(after.comp_x) - vib_formation_energy(before.comp_x), take use of event.set_dN
+    event.set_dFvib(m_vib_formation_energy_T(comp_x_after[1])-m_vib_formation_energy_T(comp_x[1]));
  
     // ---- set dpotential_energy --------------
 
-    event.set_dEpot(event.dEf() - m_condition.exchange_chem_pot(new_species, curr_species));
+    event.set_dEpot(event.dEf() + event.dFvib() - m_condition.exchange_chem_pot(new_species, curr_species));
 
   }
 
@@ -659,7 +664,7 @@ namespace CASM {
     _scalar_properties()["vib_formation_energy"] = vib_formation_energy();
     m_vib_formation_energy = &_scalar_property("vib_formation_energy");
 
-    _scalar_properties()["potential_energy"] = formation_energy() - primclex().composition_axes().param_composition(comp_n()).dot(m_condition.param_chem_pot());
+    _scalar_properties()["potential_energy"] = formation_energy() + vib_formation_energy() - primclex().composition_axes().param_composition(comp_n()).dot(m_condition.param_chem_pot());
     m_potential_energy = &_scalar_property("potential_energy");
 
     if(debug()) {
