@@ -111,6 +111,24 @@ namespace CASM {
     // std::cerr << std::endl;
     // }
 
+    // Test if cubic interpolators can be accessed in the GrandCanonicalCondition
+    std::map<double, boost::math::cubic_b_spline<double>> interpolators;
+    for (const auto& [T, F] : data) {
+        interpolators[T] = boost::math::cubic_b_spline<double>(F.begin(), F.end(), 0, 0.25);
+        }
+    
+    // Output the interpolated F(x) vectors at given T
+    if (interpolators.find(desiredT) != interpolators.end()) {
+      boost::math::cubic_b_spline<double> vib_formation_energy_T = interpolators[desiredT];
+      // GrandCanonical::set_vib_formation_energy_T(vib_formation_energy_T);
+      std::cerr << "Test Value of interpolator at T=" << desiredT << " and x=0.2: F values= " << vib_formation_energy_T(0.2) << std::endl;
+      // m_vib_formation_energy_T=vib_formation_energy_T;
+      // return m_vib_formation_energy_T;
+    } 
+    else {
+        throw std::runtime_error("Interpolator for current T not found.\n");
+    }
+
     return m_condition;
   }
 
