@@ -117,6 +117,7 @@ namespace CASM {
     std::vector<std::string> required = {
       "potential_energy",
       "formation_energy",
+      "vib_formation_energy",
       "comp",
       "comp_n"
     };
@@ -141,7 +142,8 @@ namespace CASM {
         // scalar quantities that we incrementally update
         std::vector<std::string> scalar_possible = {
           "formation_energy",
-          "potential_energy"
+          "potential_energy",
+          "vib_formation_energy"
         };
 
         // check if property found is in list of possible scalar properties

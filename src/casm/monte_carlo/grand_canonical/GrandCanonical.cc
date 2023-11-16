@@ -27,8 +27,10 @@ namespace CASM {
     set_nlist();
     
     // Hengning add here, in prim_Nb_direction, vib_formation_energies of ground-state structures are provided, in 4 formula units, same as prim.cif
-    double desiredT = m_condition.temperature();
-    std::string filename = "/userhome1/hengning/CASMcode/prim_Nb_direction.csv";
+    // double desiredT = m_condition.temperature(); Temperature cannot be called, using 10 as a temporary value
+    double desiredT = 10 ;
+    std::cerr << "Value of temperature1: " << m_condition.temperature() << std::endl;
+    std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_Nb_direction.csv";
     GrandCanonical::interpolate_vib_formation_energy(filename, desiredT);
 
     // If the simulation is big enough, use delta cluster functions;
@@ -69,6 +71,46 @@ namespace CASM {
 
   /// \brief Return current conditions
   const GrandCanonical::CondType &GrandCanonical::conditions() const {
+    double desiredT = m_condition.temperature();
+    // std::cerr << "Value of temperature2: " << desiredT << std::endl;
+
+    // Check if the datafile can be accessed in the GrandCanonicalConditions
+    std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_Nb_direction.csv";
+    std::ifstream dataFile(filename);
+    if (!dataFile.is_open()) {
+        throw std::runtime_error("Error: Unable to open data file.\n");
+    }
+
+    // Map to store F values for each T
+    std::map<double, std::vector<double>> data;
+    std::string line;
+
+    // Extract all T, x, and F data
+    while (std::getline(dataFile, line)) {
+        std::istringstream iss(line);
+        std::string value;
+        double T;
+
+        if (std::getline(iss, value, ',')) {
+            T = std::stod(value);
+            if (std::getline(iss, value, ',')) { // Skip x value
+                if (std::getline(iss, value, ',')) {
+                     data[T].push_back(std::stod(value));
+                }
+            }
+        }
+    }    
+    dataFile.close(); 
+
+    // // Check data loading from Fvib file
+    // for (const auto& [T, F] : data) {
+    // std::cerr << "Temperature: " << T << ", F values: ";
+    // for (const auto& value : F) {
+    //     std::cerr << value << " ";
+    // }
+    // std::cerr << std::endl;
+    // }
+
     return m_condition;
   }
 
