@@ -479,7 +479,7 @@ namespace CASM {
   /// \brief Get potential energy
   ///
   /// - if(&config == &this->config()) { return potential_energy(); }, else
-  ///   calculate potential_energy = formation_energy - comp_x.dot(param_chem_pot)
+  ///   calculate potential_energy = formation_energy + vib_formation_energy - comp_x.dot(param_chem_pot)
   double GrandCanonical::potential_energy(const Configuration &config) const {
     //if(&config == &this->config()) { return potential_energy(); }
 
@@ -495,7 +495,6 @@ namespace CASM {
     int T_index = int((T_current-T_initial())/dT());
     boost::math::cubic_b_spline<double> this_vib_formation_energy_T = vib_formation_energy_T()[T_index];
     double vib_formation_energy = this_vib_formation_energy_T(comp_x_vib);
-    std::cerr << "Value of Fvib: " << vib_formation_energy << std::endl;
     return formation_energy + vib_formation_energy - comp_x.dot(m_condition.param_chem_pot());
   }
 
@@ -640,7 +639,7 @@ namespace CASM {
     event.set_dN(new_species, 1);
     // Hengning: [Li, Nb, O, Ta]; comp_x[1] for Nb
     double comp_x_current = primclex().composition_axes().param_composition(comp_n())[0];
-    double comp_x_new = comp_x_current + primclex().composition_axes().param_composition(event.dN().cast<double>() / supercell().volume())[0];
+    double comp_x_new = primclex().composition_axes().param_composition(comp_n() + event.dN().cast<double>() / supercell().volume())[0];
     event.set_comp_x_vib(comp_x_current,comp_x_new);
 
     // ---- set dcorr --------------
@@ -714,16 +713,12 @@ namespace CASM {
              << "origin: " << origin.transpose() << "\n"
              << "comp_n: " << comp_n().transpose() << "\n"
              << "comp_x: " << comp_x.transpose() << "\n"
-             << "eigen comp_x: " << comp_x << "\n"
              << "T_current: " << conditions().temperature() << "\n"
-             << "T_initial: " << T_initial() << "\n"
-             << "dT: " << dT() << "\n"
              << "T_index: " << int((conditions().temperature()-T_initial())/dT()) << "\n"
              << "param_chem_pot: " << param_chem_pot.transpose() << "\n"
              << "param_chem_pot*comp_x: " << param_chem_pot.dot(comp_x)  << "\n"
              << "formation_energy: " << formation_energy() << "\n"
              << "vib_formation_energy: " << vib_formation_energy() << "\n"
-             << "vib_formation_energy at T=20K, x=0.75: " << vib_formation_energy_T()[1](0.75) << "\n"
              << "formation_energy + vib_formation_energy - param_chem_pot*comp_x: " << formation_energy() + vib_formation_energy() - param_chem_pot.dot(comp_x) << "\n"
              << "potential_energy: " << potential_energy() << "\n" << std::endl;
     }
