@@ -27,11 +27,14 @@ namespace CASM {
     set_nlist();
     
     // Hengning add here, in prim_Nb_direction, vib_formation_energies of ground-state structures are provided, in 4 formula units, same as prim.cif
-    // double desiredT = m_condition.temperature(); Temperature cannot be called, using 10 as a temporary value
-    double desiredT = 10 ;
-    std::cerr << "Value of temperature1: " << m_condition.temperature() << std::endl;
+    // double desiredT = settings.initial_conditions().temperature(); //Temperature cannot be called, using 10 as a temporary value
+    // double desiredT = 10 ;
+    double T_initial = settings.initial_conditions().temperature();
+    double dT = settings.incremental_conditions().temperature();
+    GrandCanonical::set_T_initial_dT(T_initial,dT);
+    // std::cerr << "Value of temperature1: " << desiredT << std::endl;
     std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_Nb_direction.csv";
-    GrandCanonical::interpolate_vib_formation_energy(filename, desiredT);
+    GrandCanonical::interpolate_vib_formation_energy(filename);
 
     // If the simulation is big enough, use delta cluster functions;
     // else, calculate all cluster functions
@@ -71,64 +74,6 @@ namespace CASM {
 
   /// \brief Return current conditions
   const GrandCanonical::CondType &GrandCanonical::conditions() const {
-    double desiredT = m_condition.temperature();
-    // std::cerr << "Value of temperature2: " << desiredT << std::endl;
-
-    // Check if the datafile can be accessed in the GrandCanonicalConditions
-    std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_Nb_direction.csv";
-    std::ifstream dataFile(filename);
-    if (!dataFile.is_open()) {
-        throw std::runtime_error("Error: Unable to open data file.\n");
-    }
-
-    // Map to store F values for each T
-    std::map<double, std::vector<double>> data;
-    std::string line;
-
-    // Extract all T, x, and F data
-    while (std::getline(dataFile, line)) {
-        std::istringstream iss(line);
-        std::string value;
-        double T;
-
-        if (std::getline(iss, value, ',')) {
-            T = std::stod(value);
-            if (std::getline(iss, value, ',')) { // Skip x value
-                if (std::getline(iss, value, ',')) {
-                     data[T].push_back(std::stod(value));
-                }
-            }
-        }
-    }    
-    dataFile.close(); 
-
-    // // Check data loading from Fvib file
-    // for (const auto& [T, F] : data) {
-    // std::cerr << "Temperature: " << T << ", F values: ";
-    // for (const auto& value : F) {
-    //     std::cerr << value << " ";
-    // }
-    // std::cerr << std::endl;
-    // }
-
-    // Test if cubic interpolators can be accessed in the GrandCanonicalCondition
-    std::map<double, boost::math::cubic_b_spline<double>> interpolators;
-    for (const auto& [T, F] : data) {
-        interpolators[T] = boost::math::cubic_b_spline<double>(F.begin(), F.end(), 0, 0.25);
-        }
-    
-    // Output the interpolated F(x) vectors at given T
-    if (interpolators.find(desiredT) != interpolators.end()) {
-      boost::math::cubic_b_spline<double> vib_formation_energy_T = interpolators[desiredT];
-      // GrandCanonical::set_vib_formation_energy_T(vib_formation_energy_T);
-      std::cerr << "Test Value of interpolator at T=" << desiredT << " and x=0.2: F values= " << vib_formation_energy_T(0.2) << std::endl;
-      // m_vib_formation_energy_T=vib_formation_energy_T;
-      // return m_vib_formation_energy_T;
-    } 
-    else {
-        throw std::runtime_error("Interpolator for current T not found.\n");
-    }
-
     return m_condition;
   }
 
@@ -231,7 +176,7 @@ namespace CASM {
   }
 
   // Hengning add here
-  void GrandCanonical::interpolate_vib_formation_energy(const std::string& filename, double desiredT) {
+  void GrandCanonical::interpolate_vib_formation_energy(const std::string& filename) {
     std::ifstream dataFile(filename);
     if (!dataFile.is_open()) {
         throw std::runtime_error("Error: Unable to open data file.\n");
@@ -258,22 +203,20 @@ namespace CASM {
     }    
     dataFile.close(); 
 
-    // Create interpolators for each T
-    std::map<double, boost::math::cubic_b_spline<double>> interpolators;
-    for (const auto& [T, F] : data) {
-        interpolators[T] = boost::math::cubic_b_spline<double>(F.begin(), F.end(), 0, 0.25);
+    // Create interpolators for each T as a vector
+    std::vector<boost::math::cubic_b_spline<double>> interpolated_Fvib={};
+    for (const auto& [T, Fvib] : data) {
+        boost::math::cubic_b_spline<double> interpolated_Fvib_T = boost::math::cubic_b_spline<double>(Fvib.begin(), Fvib.end(), 0, 0.25);
+        interpolated_Fvib.push_back(interpolated_Fvib_T);
         }
 
     // Output the interpolated F(x) vectors at given T
-    if (interpolators.find(desiredT) != interpolators.end()) {
-      boost::math::cubic_b_spline<double> vib_formation_energy_T = interpolators[desiredT];
-      GrandCanonical::set_vib_formation_energy_T(vib_formation_energy_T);
+    // if (interpolators.find(desiredT) != interpolators.end()) {
+    // boost::math::cubic_b_spline<double> vib_formation_energy_T = interpolators;
+    set_vib_formation_energy_T(interpolated_Fvib);
+
       // m_vib_formation_energy_T=vib_formation_energy_T;
       // return m_vib_formation_energy_T;
-    } 
-    else {
-        throw std::runtime_error("Interpolator for current T not found.\n");
-    }
   }
   
 
@@ -332,6 +275,7 @@ namespace CASM {
              << "    param_chem_pot.transpose() * dx_dn * dN: " << param_chem_pot.transpose()*Mpinv *m_event.dN().cast<double>() << "\n"
              << "  d(Nunit * param_chem_pot * x): " << exchange_chem_pot(new_species, curr_species) << "\n"
              << "  d(Ef): " << m_event.dEf() << "\n"
+             << "  T: "<<conditions().temperature()<<"\n"
              << "  Fvibs(current,new): " << m_event.Fvibs().first << ',' <<m_event.Fvibs().second << "\n"
              << "  comp_x_vib(current,new): " << m_event.comp_x_vib().first<< ','<<m_event.comp_x_vib().second<< "\n"
              << "  d(Fvib): " << m_event.dFvib() << "\n"
@@ -542,13 +486,16 @@ namespace CASM {
     auto corr = correlations(config, _clexulator());
     double formation_energy = _eci() * corr.data();
     auto comp_x = primclex().composition_axes().param_composition(CASM::comp_n(config));
-    double comp_x_vib = primclex().composition_axes().param_composition(comp_n())[1];
+    double comp_x_vib = comp_x[0];
     //Hengning add for test
     //std::cout << "comp_x: " << comp_x << std::endl;
     // Hengning add here, potential energy = Eform(config)+Fform(vib)-\mu*x
-    
-    boost::math::cubic_b_spline<double> vib_formation_energy_T = GrandCanonical::m_vib_formation_energy_T;
-    double vib_formation_energy = vib_formation_energy_T(comp_x_vib);
+
+    double T_current = conditions().temperature();
+    int T_index = int((T_current-T_initial())/dT());
+    boost::math::cubic_b_spline<double> this_vib_formation_energy_T = vib_formation_energy_T()[T_index];
+    double vib_formation_energy = this_vib_formation_energy_T(comp_x_vib);
+    std::cerr << "Value of Fvib: " << vib_formation_energy << std::endl;
     return formation_energy + vib_formation_energy - comp_x.dot(m_condition.param_chem_pot());
   }
 
@@ -692,8 +639,8 @@ namespace CASM {
     event.set_dN(curr_species, -1);
     event.set_dN(new_species, 1);
     // Hengning: [Li, Nb, O, Ta]; comp_x[1] for Nb
-    double comp_x_current = primclex().composition_axes().param_composition(comp_n())[1];
-    double comp_x_new = comp_x_current + primclex().composition_axes().param_composition(event.dN().cast<double>() / supercell().volume())[1];
+    double comp_x_current = primclex().composition_axes().param_composition(comp_n())[0];
+    double comp_x_new = comp_x_current + primclex().composition_axes().param_composition(event.dN().cast<double>() / supercell().volume())[0];
     event.set_comp_x_vib(comp_x_current,comp_x_new);
 
     // ---- set dcorr --------------
@@ -707,8 +654,10 @@ namespace CASM {
     // Hengning add here
     // ---- set dvibrational_formation_energy --------------
     // plan to get vib_formation_energy(after.comp_x) - vib_formation_energy(before.comp_x), but cannot find concentration x value
-    double Fvib_current = m_vib_formation_energy_T(comp_x_current);
-    double Fvib_new = m_vib_formation_energy_T(comp_x_new);
+    double T_current = conditions().temperature();
+    int T_index = int((T_current-T_initial())/dT());
+    double Fvib_current = m_vib_formation_energy_T[T_index](comp_x_current);
+    double Fvib_new = m_vib_formation_energy_T[T_index](comp_x_new);
     std::pair<double,double> F_vibs = {Fvib_current,Fvib_new};
     event.set_Fvibs(F_vibs);
     event.set_dFvib(Fvib_new - Fvib_current);
@@ -733,10 +682,13 @@ namespace CASM {
     m_formation_energy = &_scalar_property("formation_energy");
     
     // Hengning add here for vib_formation_energy
-    _scalar_properties()["vib_formation_energy"] = vib_formation_energy();
+    double T_current = conditions().temperature();
+    int T_index = int((T_current-T_initial())/dT());
+    auto comp_x = primclex().composition_axes().param_composition(comp_n());
+    _scalar_properties()["vib_formation_energy"] = vib_formation_energy_T()[T_index](comp_x[0]);
     m_vib_formation_energy = &_scalar_property("vib_formation_energy");
 
-    _scalar_properties()["potential_energy"] = formation_energy() - primclex().composition_axes().param_composition(comp_n()).dot(m_condition.param_chem_pot());
+    _scalar_properties()["potential_energy"] = formation_energy() + vib_formation_energy() - primclex().composition_axes().param_composition(comp_n()).dot(m_condition.param_chem_pot());
     m_potential_energy = &_scalar_property("potential_energy");
 
     if(debug()) {
@@ -755,17 +707,23 @@ namespace CASM {
              << "  Partition function, Z = sum_i exp(-N*potential_energy_i/kT) \n"
              << "  composition, comp_n = origin + M * comp_x \n"
              << "  parametric chemical potential, param_chem_pot = M.transpose() * chem_pot \n"
-             << "  potential_energy (per unitcell) = formation_energy - param_chem_pot*comp_x \n\n"
+             << "  potential_energy (per unitcell) = formation_energy + vib_formation_energy - param_chem_pot*comp_x \n\n"
 
              << "components: " << jsonParser(primclex().composition_axes().components()) << "\n"
              << "M:\n" << M << "\n"
              << "origin: " << origin.transpose() << "\n"
              << "comp_n: " << comp_n().transpose() << "\n"
              << "comp_x: " << comp_x.transpose() << "\n"
+             << "eigen comp_x: " << comp_x << "\n"
+             << "T_current: " << conditions().temperature() << "\n"
+             << "T_initial: " << T_initial() << "\n"
+             << "dT: " << dT() << "\n"
+             << "T_index: " << int((conditions().temperature()-T_initial())/dT()) << "\n"
              << "param_chem_pot: " << param_chem_pot.transpose() << "\n"
              << "param_chem_pot*comp_x: " << param_chem_pot.dot(comp_x)  << "\n"
              << "formation_energy: " << formation_energy() << "\n"
              << "vib_formation_energy: " << vib_formation_energy() << "\n"
+             << "vib_formation_energy at T=20K, x=0.75: " << vib_formation_energy_T()[1](0.75) << "\n"
              << "formation_energy + vib_formation_energy - param_chem_pot*comp_x: " << formation_energy() + vib_formation_energy() - param_chem_pot.dot(comp_x) << "\n"
              << "potential_energy: " << potential_energy() << "\n" << std::endl;
     }
