@@ -1,0 +1,24 @@
+#!/bin/sh
+#PBS -l select=1:ncpus=128:mpiprocs=128
+#PBS -l walltime=06:00:00
+#PBS -N MC_lowT
+#PBS -q largemem
+#PBS -l place=excl
+########PBS -j oe
+
+module load parallel
+#conda deactivate 
+source /home/app/anaconda3/bin/activate 
+
+conda init bash
+
+conda activate casm
+
+cd "$PBS_O_WORKDIR"
+
+
+mkdir lowT_Nb_0
+cd lowT_Nb_0
+parallel -j 128 --delay 1 --joblog "joblog.txt" --verbose "../exe_lowT.sh {} {#} {%} $RANDOM" ::: `seq -1.000 0.005 0.001`  #${chem_pot}
+#Scan the chemical potentail at low T
+

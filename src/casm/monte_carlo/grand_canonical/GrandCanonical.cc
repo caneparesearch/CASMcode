@@ -33,7 +33,10 @@ namespace CASM {
     double dT = settings.incremental_conditions().temperature();
     GrandCanonical::set_T_initial_dT(T_initial,dT);
     // std::cerr << "Value of temperature1: " << desiredT << std::endl;
-    std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_Nb_direction.csv";
+    // for docker
+    //std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_Nb_direction.csv";
+    // for singularity
+    std::string filename = "/app/CASMcode/prim_Nb_direction.csv";
     GrandCanonical::interpolate_vib_formation_energy(filename);
 
     // If the simulation is big enough, use delta cluster functions;
