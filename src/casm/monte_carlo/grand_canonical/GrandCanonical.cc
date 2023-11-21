@@ -30,12 +30,14 @@ namespace CASM {
     // double desiredT = settings.initial_conditions().temperature(); //Temperature cannot be called, using 10 as a temporary value
     // double desiredT = 10 ;
     double T_initial = settings.initial_conditions().temperature();
-    double dT = settings.incremental_conditions().temperature();
+    // Here dT should correspond to the general T step within gcMC grid, during (mu fixed, T change and T fixed, mu change)
+    //double dT = settings.incremental_conditions().temperature();
+    double dT = 10;
     GrandCanonical::set_T_initial_dT(T_initial,dT);
     // std::cerr << "Value of temperature1: " << desiredT << std::endl;
-    // for docker
-    //std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_Nb_direction.csv";
-    // for singularity
+    // for docker at orion
+    // std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_Nb_direction.csv";
+    // for singularity at fornax
     std::string filename = "/app/CASMcode/prim_Nb_direction.csv";
     GrandCanonical::interpolate_vib_formation_energy(filename);
 
