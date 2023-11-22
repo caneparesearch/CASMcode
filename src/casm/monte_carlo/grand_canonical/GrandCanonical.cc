@@ -29,18 +29,19 @@ namespace CASM {
     // Hengning add here, in prim_Nb_direction, vib_formation_energies of ground-state structures are provided, in 4 formula units, same as prim.cif
     // double desiredT = settings.initial_conditions().temperature(); //Temperature cannot be called, using 10 as a temporary value
     // double desiredT = 10 ;
-    double T_initial = settings.initial_conditions().temperature();
-    // Here dT should correspond to the general T step within gcMC grid, during (mu fixed, T change and T fixed, mu change)
+        //double T_initial = settings.initial_conditions().temperature();
     //double dT = settings.incremental_conditions().temperature();
+    // Here T_initial and dT should correspond to the general T start and T step within gcMC grid, during (mu fixed, T change and T fixed, mu change), only T_current can be used as a variable here for Fvib extraction
+    double T_initial = 10;
     double dT = 10;
     GrandCanonical::set_T_initial_dT(T_initial,dT);
     // std::cerr << "Value of temperature1: " << desiredT << std::endl;
     // for docker at orion
     // std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_Nb_direction.csv";
     // for singularity at fornax
-    // std::string filename = "/app/CASMcode/prim_Nb_direction.csv";
+    std::string filename = "/app/CASMcode/prim_Nb_direction.csv";
     // for read-only singularity at fornax to build Ta system
-    std::string filename = "/app/CASMcode/prim_Ta_direction.csv";
+    // std::string filename = "/app/CASMcode/prim_Ta_direction.csv";
     GrandCanonical::interpolate_vib_formation_energy(filename);
 
     // If the simulation is big enough, use delta cluster functions;
@@ -338,7 +339,7 @@ namespace CASM {
 
     // Next update all properties that changed from the event
     _formation_energy() += event.dEf() / supercell().volume();
-    _vib_formation_energy() += event.dFvib() / supercell().volume();
+    _vib_formation_energy() += event.dFvib();
     _potential_energy() += event.dEpot() / supercell().volume();
     _corr() += event.dCorr() / supercell().volume();
     _comp_n() += event.dN().cast<double>() / supercell().volume();
@@ -670,7 +671,7 @@ namespace CASM {
  
     // ---- set dpotential_energy --------------
 
-    event.set_dEpot(event.dEf() - m_condition.exchange_chem_pot(new_species, curr_species));
+    event.set_dEpot(event.dEf() + event.dFvib() - m_condition.exchange_chem_pot(new_species, curr_species));
 
   }
 
@@ -704,7 +705,7 @@ namespace CASM {
       auto origin = primclex().composition_axes().origin();
       auto exchange_chem_pot = m_condition.exchange_chem_pot();
       auto param_chem_pot = m_condition.param_chem_pot();
-      auto comp_x = primclex().composition_axes().param_composition(comp_n());
+      auto comp_x = primclex().composition_axes().param_composition(_comp_n());
       auto M = primclex().composition_axes().dmol_dparam();
 
       _log().custom("Calculate properties");
