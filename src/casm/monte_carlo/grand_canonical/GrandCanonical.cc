@@ -671,7 +671,7 @@ namespace CASM {
  
     // ---- set dpotential_energy --------------
 
-    event.set_dEpot(event.dEf() + event.dFvib() - m_condition.exchange_chem_pot(new_species, curr_species));
+    event.set_dEpot(event.dEf() + event.dFvib()*supercell().volume() - m_condition.exchange_chem_pot(new_species, curr_species));
 
   }
 
