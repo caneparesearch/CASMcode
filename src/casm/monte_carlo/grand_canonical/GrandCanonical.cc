@@ -39,9 +39,9 @@ namespace CASM {
     // for docker at orion
     // std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_Nb_direction.csv";
     // for singularity at fornax
-    // std::string filename = "/app/CASMcode/prim_Nb_direction.csv";
+    std::string filename = "/app/CASMcode/prim_Nb_direction.csv";
     // for read-only singularity at fornax to build Ta system
-    std::string filename = "/app/CASMcode/prim_Ta_direction.csv";
+    // std::string filename = "/app/CASMcode/prim_Ta_direction.csv";
     GrandCanonical::interpolate_vib_formation_energy(filename);
 
     // If the simulation is big enough, use delta cluster functions;
@@ -287,8 +287,10 @@ namespace CASM {
              << "  Fvibs(current,new): " << m_event.Fvibs().first << ',' <<m_event.Fvibs().second << "\n"
              << "  comp_x_vib(current,new): " << m_event.comp_x_vib().first<< ','<<m_event.comp_x_vib().second<< "\n"
              << "  d(Fvib): " << m_event.dFvib() << "\n"
-             << "  d(Epot) with d(Fvib) " << m_event.dEf() + m_event.dFvib() -  exchange_chem_pot(new_species, curr_species) << "\n"
-             << "  d(Epot) without d(Fvib): " << m_event.dEf()  -  exchange_chem_pot(new_species, curr_species) << "\n"
+            //  << "  d(Epot_compare) with d(Fvib) " << m_event.dEf() + m_event.dFvib()*supercell().volume() -  exchange_chem_pot(new_species, curr_species) << "\n"
+            //  << "  d(Epot) without d(Fvib): " << m_event.dEf()  -  exchange_chem_pot(new_species, curr_species) << "\n"
+             << "  d(Epot_compare) with d(Fvib) " << m_event.dEpot_compare() << "\n"
+             << "  d(Epot) without d(Fvib): " << m_event.dEpot() << "\n"
              << std::endl;
 
 
@@ -300,7 +302,7 @@ namespace CASM {
   /// \brief Based on a random number, decide if the change in energy from the proposed event is low enough to be accepted.
   bool GrandCanonical::check(const GrandCanonicalEvent &event) {
 
-    if(event.dEpot()< 0.0) {
+    if(event.dEpot_compare()< 0.0) {
 
       if(debug()) {
         _log().custom("Check event");
@@ -310,7 +312,7 @@ namespace CASM {
     }
 
     double rand = _mtrand().rand53();
-    double prob = exp(-event.dEpot() * m_condition.beta());
+    double prob = exp(-event.dEpot_compare() * m_condition.beta());
 
     if(debug()) {
       _log().custom("Check event");
@@ -337,9 +339,11 @@ namespace CASM {
     // First apply changes to configuration (just a single occupant change)
     _configdof().occ(event.occupational_change().site_index()) = event.occupational_change().to_value();
 
-    // Next update all properties that changed from the event
+    // Next update all properties (eV/prim f.u.) that changed from the event, dproperty is in eV/(supercell prim f.u.),
     _formation_energy() += event.dEf() / supercell().volume();
     _vib_formation_energy() += event.dFvib();
+    // The integration of potential energy should exclude the temperature-related Fvib
+    // _potential_energy() += event.dEpot_compare() / supercell().volume();
     _potential_energy() += event.dEpot() / supercell().volume();
     _corr() += event.dCorr() / supercell().volume();
     _comp_n() += event.dN().cast<double>() / supercell().volume();
@@ -417,7 +421,7 @@ namespace CASM {
         _update_deltas(event, mutating_site, sublat, current_occupant, *new_occ_it);
 
         //save the result
-        double dpot_nrg = event.dEpot();
+        double dpot_nrg = event.dEpot_compare();
         if(dpot_nrg < 0.0) {
           Log &err_log = default_err_log();
           err_log.error<Log::standard>("Calculating low temperature expansion");
@@ -503,7 +507,7 @@ namespace CASM {
     int T_index = int((T_current-T_initial())/dT());
     boost::math::cubic_b_spline<double> this_vib_formation_energy_T = vib_formation_energy_T()[T_index];
     double vib_formation_energy = this_vib_formation_energy_T(comp_x_vib);
-    return formation_energy + vib_formation_energy - comp_x.dot(m_condition.param_chem_pot());
+    return formation_energy - comp_x.dot(m_condition.param_chem_pot());
   }
 
   /// \brief Calculate delta correlations for an event
@@ -671,8 +675,10 @@ namespace CASM {
  
     // ---- set dpotential_energy --------------
 
-    event.set_dEpot(event.dEf() + event.dFvib()*supercell().volume() - m_condition.exchange_chem_pot(new_species, curr_species));
+    event.set_dEpot_compare(event.dEf() + event.dFvib()*supercell().volume() - m_condition.exchange_chem_pot(new_species, curr_species));
 
+    event.set_dEpot(event.dEf() - m_condition.exchange_chem_pot(new_species, curr_species));
+    
   }
 
   /// \brief Calculate properties given current conditions
@@ -695,7 +701,7 @@ namespace CASM {
     _scalar_properties()["vib_formation_energy"] = vib_formation_energy_T()[T_index](comp_x[0]);
     m_vib_formation_energy = &_scalar_property("vib_formation_energy");
 
-    _scalar_properties()["potential_energy"] = formation_energy() + vib_formation_energy() - primclex().composition_axes().param_composition(comp_n()).dot(m_condition.param_chem_pot());
+    _scalar_properties()["potential_energy"] = formation_energy() - primclex().composition_axes().param_composition(comp_n()).dot(m_condition.param_chem_pot());
     m_potential_energy = &_scalar_property("potential_energy");
 
     if(debug()) {
@@ -714,7 +720,7 @@ namespace CASM {
              << "  Partition function, Z = sum_i exp(-N*potential_energy_i/kT) \n"
              << "  composition, comp_n = origin + M * comp_x \n"
              << "  parametric chemical potential, param_chem_pot = M.transpose() * chem_pot \n"
-             << "  potential_energy (per unitcell) = formation_energy + vib_formation_energy - param_chem_pot*comp_x \n\n"
+             << "  potential_energy (per unitcell) = formation_energy - param_chem_pot*comp_x \n\n"
 
              << "components: " << jsonParser(primclex().composition_axes().components()) << "\n"
              << "M:\n" << M << "\n"
