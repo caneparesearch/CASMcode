@@ -39,9 +39,9 @@ namespace CASM {
     // for docker at orion
     // std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_Nb_direction.csv";
     // for singularity at fornax
-    std::string filename = "/app/CASMcode/prim_Nb_direction.csv";
+    // std::string filename = "/app/CASMcode/prim_Nb_direction.csv";
     // for read-only singularity at fornax to build Ta system
-    // std::string filename = "/app/CASMcode/prim_Ta_direction.csv";
+    std::string filename = "/app/CASMcode/prim_Ta_direction.csv";
     GrandCanonical::interpolate_vib_formation_energy(filename);
 
     // If the simulation is big enough, use delta cluster functions;
@@ -290,8 +290,7 @@ namespace CASM {
             //  << "  d(Epot_compare) with d(Fvib) " << m_event.dEf() + m_event.dFvib()*supercell().volume() -  exchange_chem_pot(new_species, curr_species) << "\n"
             //  << "  d(Epot) without d(Fvib): " << m_event.dEf()  -  exchange_chem_pot(new_species, curr_species) << "\n"
              << "  d(Epot_compare) with d(Fvib) " << m_event.dEpot_compare() << "\n"
-             << "  d(Epot) without d(Fvib): " << m_event.dEpot() << "\n"
-             << std::endl;
+             << "  d(Epot) without d(Fvib): " << m_event.dEpot() << "\n" << std::endl;
 
 
     }
@@ -474,6 +473,10 @@ namespace CASM {
     }
 
     _log() << "phi_LTE(1): " << std::setprecision(12) << potential_energy() - phi << std::endl << std::endl;
+
+    // if (debug()) {
+    // _log() << "Current phi: " << phi << std::endl;
+    // }
 
     return potential_energy() - phi;
 
@@ -734,7 +737,8 @@ namespace CASM {
              << "formation_energy: " << formation_energy() << "\n"
              << "vib_formation_energy: " << vib_formation_energy() << "\n"
              << "formation_energy + vib_formation_energy - param_chem_pot*comp_x: " << formation_energy() + vib_formation_energy() - param_chem_pot.dot(comp_x) << "\n"
-             << "potential_energy: " << potential_energy() << "\n" << std::endl;
+             << "potential_energy: " << potential_energy() << "\n"
+             << std::endl;
     }
 
   }
