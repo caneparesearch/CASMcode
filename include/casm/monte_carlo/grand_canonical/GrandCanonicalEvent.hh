@@ -80,11 +80,11 @@ namespace CASM {
     /// \brief Return change in (extensive) potential energy, dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
     double dEpot() const;
 
-    /// \brief Set change in (extensive) potential energy, dEpot = dEf + dFvib - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
-    void set_dEpot_compare(double dpot_nrg);
+    // /// \brief Set change in (extensive) potential energy, dEpot = dEf + dFvib - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
+    // void set_dEpot_compare(double dpot_nrg);
 
-    /// \brief Return change in (extensive) potential energy, dEpot = dEf + dFvib - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
-    double dEpot_compare() const;
+    // /// \brief Return change in (extensive) potential energy, dEpot = dEf + dFvib - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
+    // double dEpot_compare() const;
 
     // /// Hengning add here
     // boost::math::cubic_b_spline<double> m_vib_formation_energy_T;
@@ -118,8 +118,8 @@ namespace CASM {
     /// \brief Change in (extensive) potential energy, dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
     double m_dEpot;
 
-    /// \brief Change in (extensive) potential energy, dEpot = dEf + dFvib - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
-    double m_dEpot_compare;
+    // /// \brief Change in (extensive) potential energy, dEpot = dEf + dFvib - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
+    // double m_dEpot_compare;
 
     std::pair<double,double> m_comp_x_vib;
     std::pair<double,double> m_Fvibs;
@@ -214,15 +214,15 @@ namespace CASM {
     return m_dEpot;
   }
 
-    /// \brief Set the change in potential energy: dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
-  inline void GrandCanonicalEvent::set_dEpot_compare(double dEpot_compare) {
-    m_dEpot_compare = dEpot_compare;
-  }
+  //   /// \brief Set the change in potential energy: dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
+  // inline void GrandCanonicalEvent::set_dEpot_compare(double dEpot_compare) {
+  //   m_dEpot_compare = dEpot_compare;
+  // }
 
-  /// \brief Return change in potential energy: dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
-  inline double GrandCanonicalEvent::dEpot_compare() const {
-    return m_dEpot_compare;
-  }
+  // /// \brief Return change in potential energy: dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
+  // inline double GrandCanonicalEvent::dEpot_compare() const {
+  //   return m_dEpot_compare;
+  // }
 
   /// \brief Access the changes in correlations associated with this event
   inline Eigen::VectorXd &GrandCanonicalEvent::dCorr() {
