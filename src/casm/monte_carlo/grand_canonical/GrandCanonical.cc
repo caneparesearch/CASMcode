@@ -39,9 +39,9 @@ namespace CASM {
     // for docker at orion
     // std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_Nb_direction.csv";
     // for singularity at fornax
-    // std::string filename = "/app/CASMcode/prim_Nb_direction.csv";
+    std::string filename = "/app/CASMcode/prim_Nb_direction.csv";
     // for read-only singularity at fornax to build Ta system
-    std::string filename = "/app/CASMcode/prim_Ta_direction.csv";
+    // std::string filename = "/app/CASMcode/prim_Ta_direction.csv";
     GrandCanonical::interpolate_vib_formation_energy(filename);
 
     // If the simulation is big enough, use delta cluster functions;
@@ -287,7 +287,7 @@ namespace CASM {
              << "  Fvibs(current,new): " << m_event.Fvibs().first << ',' <<m_event.Fvibs().second << "\n"
              << "  comp_x_vib(current,new): " << m_event.comp_x_vib().first<< ','<<m_event.comp_x_vib().second<< "\n"
              << "  d(Fvib): " << m_event.dFvib() << "\n"
-             << "  d(Epot with d(Fvib) " << m_event.dEpot() << "\n"
+             << "  d(Epot) with d(Fvib) " << m_event.dEpot() << "\n"
              << "  d(Epot) without d(Fvib): " << m_event.dEf() - exchange_chem_pot(new_species, curr_species) << "\n" << std::endl;
 
 

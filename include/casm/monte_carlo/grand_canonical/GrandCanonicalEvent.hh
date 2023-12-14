@@ -75,7 +75,7 @@ namespace CASM {
 
 
     /// \brief Set change in (extensive) potential energy, dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
-    void set_dEpot (double dEpot);
+    void set_dEpot(double dpot_nrg);
 
     /// \brief Return change in (extensive) potential energy, dEpot = dEf - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
     double dEpot() const;
