@@ -27,21 +27,19 @@ namespace CASM {
     set_nlist();
     
     // Hengning add here, in prim_Nb_direction, vib_formation_energies of ground-state structures are provided, in 4 formula units, same as prim.cif
-    // double desiredT = settings.initial_conditions().temperature(); //Temperature cannot be called, using 10 as a temporary value
-    // double desiredT = 10 ;
-        //double T_initial = settings.initial_conditions().temperature();
-    //double dT = settings.incremental_conditions().temperature();
-    // Here T_initial and dT should correspond to the general T start and T step within gcMC grid, during (mu fixed, T change and T fixed, mu change), only T_current can be used as a variable here for Fvib extraction
+    // double T_initial = settings.initial_conditions().temperature();
+    // double dT = settings.incremental_conditions().temperature();
+    // The above definition works for (\mu fixed, T change) situation, but not for (\mu change, T fixed) situation. Here we define the more direct T_initial and dT, which should correspond to the general T start and T step within gcMC grid (\mu fixed, T change and T fixed, \mu change), only T_current can be used as a variable here for Fvib extraction
     double T_initial = 10;
     double dT = 10;
     GrandCanonical::set_T_initial_dT(T_initial,dT);
     // std::cerr << "Value of temperature1: " << desiredT << std::endl;
-    // for docker at orion
-    // std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_Nb_direction.csv";
-    // for singularity at fornax
+    // for docker at orion (test gcMC extract and interpolte Evib correctly)
+    std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_beta.csv";
+    // for read-only singularity at fornax
     // std::string filename = "/app/CASMcode/prim_Nb_direction.csv";
     // for read-only singularity at fornax to build Ta system
-    std::string filename = "/app/CASMcode/prim_Ta_direction.csv";
+    // std::string filename = "/app/CASMcode/prim_Ta_direction.csv";
     GrandCanonical::interpolate_vib_formation_energy(filename);
 
     // If the simulation is big enough, use delta cluster functions;
@@ -187,7 +185,7 @@ namespace CASM {
   void GrandCanonical::interpolate_vib_formation_energy(const std::string& filename) {
     std::ifstream dataFile(filename);
     if (!dataFile.is_open()) {
-        throw std::runtime_error("Error: Unable to open data file.\n");
+        throw std::runtime_error("Error: Unable to open this data file.\n");
     }
 
     // Map to store F values for each T
