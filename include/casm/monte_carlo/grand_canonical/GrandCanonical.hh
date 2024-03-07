@@ -123,7 +123,7 @@ namespace CASM {
     /// \brief Get potential energy
     double potential_energy(const Configuration &config) const;
       
-    /// \brief Hengning add here. Get interpolated function Fvib(x) and values of Fvib
+    /// \brief Hengning add here. Get interpolated function Evib(x) and values of Evib
     void interpolate_vib_formation_energy(const std::string& filename);
 
     
@@ -142,9 +142,6 @@ namespace CASM {
     m_vib_formation_energy_T = vib_formation_energy_T;
     }
     std::vector<boost::math::cubic_b_spline<double>> m_vib_formation_energy_T; 
-
-    // /// \brief Hengning add F_vib energy here, set_vib_formation_energy_T: member function of GrandcanonicalEvent, vib_formation_energy_T: member function of GrandcanonicalEvent and return object but not values, m_vib_formation_energy_T: member variable and stores values, m_vib_formation_energy: double type of member variable, values of vib_formation_energy at specific x and T.
-    // inline void set_vib_formation_energy_T(boost::math::cubic_b_spline<double> vib_formation_energy_T);
     
     inline std::vector<boost::math::cubic_b_spline<double>> vib_formation_energy_T() const{
       return m_vib_formation_energy_T;
@@ -263,7 +260,6 @@ namespace CASM {
     /// \brief Hengning add here
     double m_T_initial;
     double m_dT;
-    // boost::math::cubic_b_spline<double> m_vib_formation_energy_T; 
   };
 
 }

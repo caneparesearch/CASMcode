@@ -29,7 +29,7 @@ namespace CASM {
     // Hengning add here, in prim_beta, vib_formation_energies of ground-state structures are provided, in 4 formula units, same as prim.cif
     // double T_initial = settings.initial_conditions().temperature();
     // double dT = settings.incremental_conditions().temperature();
-    // The above definition works for (\mu fixed, T change) situation, but not for (\mu change, T fixed) situation. Here we define the more direct T_initial and dT, which should correspond to the general T start and T step within gcMC grid (\mu fixed, T change and T fixed, \mu change), only T_current can be used as a variable here for Fvib extraction
+    // The above definition works for (\mu fixed, T change) situation, but not for (\mu change, T fixed) situation. Here we define the more direct T_initial and dT, which should correspond to the general T start and T step within gcMC grid (\mu fixed, T change and T fixed, \mu change), only T_current can be used as a variable here for Evib extraction
     double T_initial = 10;
     double dT = 10;
     GrandCanonical::set_T_initial_dT(T_initial,dT);
@@ -37,9 +37,9 @@ namespace CASM {
     // for docker at orion (test gcMC extract and interpolte Evib correctly)
     // std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_beta.csv";
     // for read-only singularity at fornax
-    std::string filename = "/app/CASMcode/prim_beta.csv";
+    // std::string filename = "/app/CASMcode/prim_beta.csv";
     // for read-only singularity at fornax to build Ta system
-    // std::string filename = "/app/CASMcode/prim_alpha.csv";
+    std::string filename = "/app/CASMcode/prim_alpha.csv";
     GrandCanonical::interpolate_vib_formation_energy(filename);
 
     // If the simulation is big enough, use delta cluster functions;
@@ -210,19 +210,14 @@ namespace CASM {
     dataFile.close(); 
 
     // Create interpolators for each T as a vector
-    std::vector<boost::math::cubic_b_spline<double>> interpolated_Fvib={};
-    for (const auto& [T, Fvib] : data) {
-        boost::math::cubic_b_spline<double> interpolated_Fvib_T = boost::math::cubic_b_spline<double>(Fvib.begin(), Fvib.end(), 0, 0.25);
-        interpolated_Fvib.push_back(interpolated_Fvib_T);
+    std::vector<boost::math::cubic_b_spline<double>> interpolated_Evib={};
+    for (const auto& [T, Evib] : data) {
+        boost::math::cubic_b_spline<double> interpolated_Evib_T = boost::math::cubic_b_spline<double>(Evib.begin(), Evib.end(), 0, 0.25);
+        interpolated_Evib.push_back(interpolated_Evib_T);
         }
 
-    // Output the interpolated F(x) vectors at given T
-    // if (interpolators.find(desiredT) != interpolators.end()) {
-    // boost::math::cubic_b_spline<double> vib_formation_energy_T = interpolators;
-    set_vib_formation_energy_T(interpolated_Fvib);
+    set_vib_formation_energy_T(interpolated_Evib);
 
-      // m_vib_formation_energy_T=vib_formation_energy_T;
-      // return m_vib_formation_energy_T;
   }
   
 
@@ -282,11 +277,11 @@ namespace CASM {
              << "  d(Nunit * param_chem_pot * x): " << exchange_chem_pot(new_species, curr_species) << "\n"
              << "  d(Ef): " << m_event.dEf() << "\n"
              << "  T: "<<conditions().temperature()<<"\n"
-             << "  Fvibs(current,new): " << m_event.Fvibs().first << ',' << m_event.Fvibs().second << "\n"
+             << "  Evibs(current,new): " << m_event.Evibs().first << ',' << m_event.Evibs().second << "\n"
              << "  comp_x_vib(current,new): " << m_event.comp_x_vib().first<< ','<<m_event.comp_x_vib().second<< "\n"
-             << "  d(Fvib): " << m_event.dFvib() << "\n"
+             << "  d(Evib): " << m_event.dEvib() << "\n"
              << "  d(Epot): " << m_event.dEpot() << "\n"
-             << "  d(Epot) without d(Fvib): " << m_event.dEf() - exchange_chem_pot(new_species, curr_species) << "\n" << 
+             << "  d(Epot) without d(Evib): " << m_event.dEf() - exchange_chem_pot(new_species, curr_species) << "\n" << 
              std::endl;
 
 
@@ -337,13 +332,13 @@ namespace CASM {
 
     // Next update all properties (eV/prim f.u.) that changed from the event, dproperty is in eV/(supercell prim f.u.),
     _formation_energy() += event.dEf() / supercell().volume();
-    _vib_formation_energy() += event.dFvib();
+    _vib_formation_energy() += event.dEvib();
     _corr() += event.dCorr() / supercell().volume();
     _comp_n() += event.dN().cast<double>() / supercell().volume();
-    // Method_1 The potential energy include the temperature-related Fvib
+    // Method_1 The potential energy include the temperature-related Evib
     // _potential_energy() += event.dEpot() / supercell().volume();
-    // Method_2 The potential energy exclude the temperature-related Fvib
-    _potential_energy() += event.dEpot() / supercell().volume() - event.dFvib();
+    // Method_2 The potential energy exclude the temperature-related Evib
+    _potential_energy() += event.dEpot() / supercell().volume() - event.dEvib();
 
     return;
   }
@@ -507,9 +502,9 @@ namespace CASM {
     int T_index = int((T_current-T_initial())/dT());
     boost::math::cubic_b_spline<double> this_vib_formation_energy_T = vib_formation_energy_T()[T_index];
     double vib_formation_energy = this_vib_formation_energy_T(comp_x_vib);
-    // Method 1 The potential energy include the temperature-related Fvib
+    // Method 1 The potential energy include the temperature-related Evib
     // return formation_energy + vib_formation_energy - comp_x.dot(m_condition.param_chem_pot());
-    // Method 2 The potential energy exclude the temperature-related Fvib
+    // Method 2 The potential energy exclude the temperature-related Evib
     return formation_energy - comp_x.dot(m_condition.param_chem_pot());
   }
 
@@ -670,16 +665,16 @@ namespace CASM {
     // plan to get vib_formation_energy(after.comp_x) - vib_formation_energy(before.comp_x)
     double T_current = conditions().temperature();
     int T_index = int((T_current-T_initial())/dT());
-    double Fvib_current = m_vib_formation_energy_T[T_index](comp_x_current);
-    double Fvib_new = m_vib_formation_energy_T[T_index](comp_x_new);
-    std::pair<double,double> F_vibs = {Fvib_current,Fvib_new};
-    event.set_Fvibs(F_vibs);
-    event.set_dFvib(Fvib_new - Fvib_current);
+    double Evib_current = m_vib_formation_energy_T[T_index](comp_x_current);
+    double Evib_new = m_vib_formation_energy_T[T_index](comp_x_new);
+    std::pair<double,double> F_vibs = {Evib_current,Evib_new};
+    event.set_Evibs(F_vibs);
+    event.set_dEvib(Evib_new - Evib_current);
  
     // ---- set dpotential_energy --------------
     
     // dEpot=dEf+dEvib-\mux
-    event.set_dEpot(event.dEf() + event.dFvib()*supercell().volume() - m_condition.exchange_chem_pot(new_species, curr_species));
+    event.set_dEpot(event.dEf() + event.dEvib()*supercell().volume() - m_condition.exchange_chem_pot(new_species, curr_species));
     
   }
 
@@ -702,10 +697,10 @@ namespace CASM {
     auto comp_x = primclex().composition_axes().param_composition(comp_n());
     _scalar_properties()["vib_formation_energy"] = vib_formation_energy_T()[T_index](comp_x[0]);
     m_vib_formation_energy = &_scalar_property("vib_formation_energy");
-    // Method 1 The potential energy include the temperature-related Fvib
+    // Method 1 The potential energy include the temperature-related Evib
     // _scalar_properties()["potential_energy"] = formation_energy() + vib_formation_energy() - primclex().composition_axes().param_composition(comp_n()).dot(m_condition.param_chem_pot());
 
-    // Method 2 The potential energy exclude the temperature-related Fvib
+    // Method 2 The potential energy exclude the temperature-related Evib
     _scalar_properties()["potential_energy"] = formation_energy() - primclex().composition_axes().param_composition(comp_n()).dot(m_condition.param_chem_pot());
     m_potential_energy = &_scalar_property("potential_energy");
 
