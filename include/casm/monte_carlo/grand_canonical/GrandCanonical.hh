@@ -123,7 +123,7 @@ namespace CASM {
     /// \brief Get potential energy
     double potential_energy(const Configuration &config) const;
       
-    /// \brief Hengning add here. Get interpolated function Evib(x) and values of Evib
+    /// \brief Hengning add here. Get interpolated function Fvib(x) and values of Fvib
     void interpolate_vib_formation_energy(const std::string& filename);
 
     

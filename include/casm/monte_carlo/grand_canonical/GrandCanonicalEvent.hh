@@ -34,16 +34,16 @@ namespace CASM {
     double dEf() const;
 
     /// \brief Set the change in (extensive) vibrational formation energy associated with this event
-    void set_dEvib(double dEvib);
+    void set_dFvib(double dFvib);
 
     /// \brief Return change in (extensive) vibrational formation energy associated with this event
-    double dEvib() const;
+    double dFvib() const;
 
-    std::pair<double,double> Evibs() {
-      return m_Evibs;
+    std::pair<double,double> Fvibs() {
+      return m_Fvibs;
     }
-    void set_Evibs(std::pair<double,double> Evibs){
-      m_Evibs = Evibs;
+    void set_Fvibs(std::pair<double,double> Fvibs){
+      m_Fvibs = Fvibs;
     }
 
     std::pair<double,double> comp_x_vib() {
@@ -68,10 +68,10 @@ namespace CASM {
     long int dN(size_type species_type_index) const;
 
 
-    /// \brief Set change in (extensive) potential energy, dEpot = dEf + dEvib - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
+    /// \brief Set change in (extensive) potential energy, dEpot = dEf + dFvib - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
     void set_dEpot(double dpot_nrg);
 
-    /// \brief Return change in (extensive) potential energy, dEpot = dEf + dEvib - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
+    /// \brief Return change in (extensive) potential energy, dEpot = dEf + dFvib - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
     double dEpot() const;
 
     /// \brief Access the changes in (extensive) correlations associated with this event
@@ -97,13 +97,13 @@ namespace CASM {
     double m_dEf;
 
     /// \brief Hengning add here. Change in (extensive) vibrational formation energy due to this event
-    double m_dEvib;
+    double m_dFvib;
 
-    /// \brief Change in (extensive) potential energy, dEpot = dEf + dEvib - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
+    /// \brief Change in (extensive) potential energy, dEpot = dEf + dFvib - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
     double m_dEpot;
 
     std::pair<double,double> m_comp_x_vib;
-    std::pair<double,double> m_Evibs;
+    std::pair<double,double> m_Fvibs;
 
     /// \brief Change in number of each species in supercell due to this event.
     ///        The order is determined by primclex.get_param_comp().get_components()
@@ -137,13 +137,13 @@ namespace CASM {
   }
 
     /// \brief Set the change in total vibrational (formation) energy associated with this event
-  inline void GrandCanonicalEvent::set_dEvib(double dEvib) {
-    m_dEvib = dEvib;
+  inline void GrandCanonicalEvent::set_dFvib(double dFvib) {
+    m_dFvib = dFvib;
   }
 
   /// \brief Return change in total (formation) energy associated with this event
-  inline double GrandCanonicalEvent::dEvib() const {
-    return m_dEvib;
+  inline double GrandCanonicalEvent::dFvib() const {
+    return m_dFvib;
   }
   
   /// \brief Access change in number of all species (extensive). Order as in CompositionConverter::components().
@@ -167,12 +167,12 @@ namespace CASM {
   }
 
 
-  /// \brief Set the change in potential energy: dEpot = dEf + dEvib - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
+  /// \brief Set the change in potential energy: dEpot = dEf + dFvib - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
   inline void GrandCanonicalEvent::set_dEpot(double dEpot) {
     m_dEpot = dEpot;
   }
 
-  /// \brief Return change in potential energy: dEpot = dEf + dEvib - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
+  /// \brief Return change in potential energy: dEpot = dEf + dFvib - sum_i(Nunit * param_chem_pot_i * dcomp_x_i)
   inline double GrandCanonicalEvent::dEpot() const {
     return m_dEpot;
   }
