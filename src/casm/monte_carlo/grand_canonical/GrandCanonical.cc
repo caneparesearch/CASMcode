@@ -35,9 +35,9 @@ namespace CASM {
     GrandCanonical::set_T_initial_dT(T_initial,dT);
     // std::cerr << "Value of temperature1: " << desiredT << std::endl;
     // for docker at orion (test gcMC extract and interpolate Fvib correctly)
-    std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_beta.csv";
+    // std::string filename = "/userhome1/hengning/Fvib_CASMcode/CASMcode/prim_beta.csv";
     // for read-only singularity at fornax
-    // std::string filename = "/app/CASMcode/prim_beta.csv";
+    std::string filename = "/app/CASMcode/prim_beta.csv";
     // for read-only singularity at fornax to build Ta system
     // std::string filename = "/app/CASMcode/prim_alpha.csv";
     GrandCanonical::interpolate_vib_formation_energy(filename);
